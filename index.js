@@ -27,7 +27,7 @@ app.post("/uplinks", async (req, res) => {
         if(!device){
             await Device.create({
                 id: deviceId,
-                value: [value]
+                value: [Number(value)]
             })
         }
         else{
