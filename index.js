@@ -1,5 +1,5 @@
 import express from "express";
-import db from "./config/db";
+import db from "./config/db.js";
 
 const app = express()
 const port = process.env.PORT || 3000
