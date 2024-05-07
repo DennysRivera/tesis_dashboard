@@ -1,12 +1,14 @@
 import express from "express";
 import db from "./config/db.js";
 import Device from "./models/Device.js";
+import cors from "cors";
 
 const app = express()
 const port = process.env.PORT || 3000
 
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
+app.use(cors())
 
 try {
     await db.authenticate();
