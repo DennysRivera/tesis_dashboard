@@ -18,9 +18,25 @@ try {
 
 app.post("/uplinks", async (req, res) => {
     console.log(req.body.uplink_message.decoded_payload.str)
-    //console.log(req.body.identifiers.device_ids.device_id)
+    console.log(req.body.end_device_ids.device_id)
     console.log(req.body)
-
+    try {
+        const value = req.body.uplink_message.decoded_payload.str
+        const deviceId = req.body.end_device_ids.device_id
+        let device = await Device.findByPk(deviceId)
+        if(!device){
+            await Device.create({
+                id: deviceId,
+                value: [value]
+            })
+        }
+        else{
+            device.value = [value]
+            device.save()
+        }
+    } catch (error) {
+        console.log(error)
+    }
 })
 
 app.get("/dashboard", (req, res) => {
