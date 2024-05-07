@@ -41,8 +41,9 @@ app.post("/uplinks", async (req, res) => {
     }
 })
 
-app.get("/dashboard", (req, res) => {
-    res.send("Connected");
+app.get("/dashboard", async (req, res) => {
+    const devices = await Device.findAll();
+    return res.json(devices);
 })
 
 app.listen(port, () => {
