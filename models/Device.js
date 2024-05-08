@@ -8,7 +8,7 @@ const Device = db.define('device', {
         allowNull: false
     },
     value: {
-        type: DataTypes.ARRAY(DataTypes.FLOAT),
+        type: DataTypes.ARRAY(DataTypes.ARRAY(DataTypes.STRING)),
         defaultValue: []
     }
 });
