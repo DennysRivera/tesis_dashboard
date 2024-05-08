@@ -37,7 +37,7 @@ app.post("/uplinks", async (req, res) => {
             console.log("old")
             let valueArray = device.value
             console.log("before: ", valueArray)
-            valueArray.push(value)
+            valueArray.push(Number(value))
             console.log("after: ", valueArray)
             device.value = valueArray
             console.log("device.value: ", device.value)
