@@ -39,7 +39,13 @@ app.post("/uplinks", async (req, res) => {
             console.log("before: ", valueArray)
             valueArray.push(Number(value))
             console.log("after: ", valueArray)
-            await device.update({value: valueArray})
+            await device.update({
+                value: valueArray
+            }, {
+                where: {
+                    id: deviceId
+                }
+            })
             console.log("device.value: ", device.value)
             await device.save()
         }
