@@ -21,22 +21,25 @@ try {
 app.post("/uplinks", async (req, res) => {
     console.log(req.body.uplink_message.decoded_payload.str)
     console.log(req.body.end_device_ids.device_id)
-    console.log(req.body)
+    //console.log(req.body)
     try {
         const value = req.body.uplink_message.decoded_payload.str
         const deviceId = req.body.end_device_ids.device_id
         let device = await Device.findByPk(deviceId)
         if(!device){
+            console.log("new")
             await Device.create({
                 id: deviceId,
                 value: [Number(value)]
             })
         }
         else{
+            console.log("old")
             let valueArray = device.value
+            console.log(valueArray)
             valueArray.push(value)
             device.value = valueArray
-            device.save()
+            await device.save()
         }
         return res.end()
     } catch (error) {
