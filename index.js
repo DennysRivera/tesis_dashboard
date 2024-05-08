@@ -36,9 +36,11 @@ app.post("/uplinks", async (req, res) => {
         else{
             console.log("old")
             let valueArray = device.value
-            console.log(valueArray)
+            console.log("before: ", valueArray)
             valueArray.push(value)
+            console.log("after: ", valueArray)
             device.value = valueArray
+            console.log("device.value: ", device.value)
             await device.save()
         }
         return res.end()
