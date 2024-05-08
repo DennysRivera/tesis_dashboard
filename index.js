@@ -33,9 +33,12 @@ app.post("/uplinks", async (req, res) => {
             })
         }
         else{
-            device.value = [value]
+            let valueArray = device.value
+            valueArray.push(value)
+            device.value = valueArray
             device.save()
         }
+        return res.end()
     } catch (error) {
         console.log(error)
     }
