@@ -25,28 +25,21 @@ app.post("/uplinks", async (req, res) => {
     try {
         const value = req.body.uplink_message.decoded_payload.str
         const deviceId = req.body.end_device_ids.device_id
+        const receivedAt = req.body.uplink_message.received_at
         let device = await Device.findByPk(deviceId)
         if(!device){
-            console.log("new")
             await Device.create({
                 id: deviceId,
-                value: [Number(value)]
+                value: [[value, receivedAt]]
             })
         }
         else{
-            console.log("old")
-            let valueArray = device.value
-            console.log("before: ", valueArray)
-            valueArray.push(Number(value))
-            console.log("after: ", valueArray)
+            let parentArray = [...device.value]
+            let childArray = [value, receivedAt]
+            parentArray.push(childArray)
             await device.update({
-                value: valueArray
-            }, {
-                where: {
-                    id: deviceId
-                }
+                value: parentArray
             })
-            console.log("device.value: ", device.value)
             await device.save()
         }
         return res.end()
