@@ -1,0 +1,31 @@
+version: "1"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - DB_HOST=dpg-cot6m0a0si5c7389cnpg-a
+      - DB_NAME=uca_devices
+      - DB_PASS=HHFfnXNG8eRlLJuJOnfRJ7i3dIUIepkB
+      - DB_USER=uca_devices_user
+      - PORT=10000
+      - DEBUG=dummyDictionary:*
+    ports:
+      - "80:3000"
+    volumes:
+      - .:/home/node/app
+      - node_modules:/home/node/app/node_modules
+    networks:
+      - app-network
+    command: ./wait-for.sh db:27017 -- /home/node/app/node_modules/.bin/nodemon app.js
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  node_modules:
