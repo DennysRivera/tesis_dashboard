@@ -7,9 +7,11 @@ import Ubicacion from "./Ubicacion.js";
 /*Ubicacion.belongsTo(Sector, {
     foreignKey: "sectorId"
 });*/
-Medicion.hasOne(Dispositivo, {
+
+Dispositivo.belongsTo(Medicion, {
     foreignKey: "medicionId"
 });
+
 Dispositivo.belongsTo(Ubicacion, {
     foreignKey: "ubicacionId"
 });
