@@ -3,17 +3,17 @@ import db from "../config/db.js";
 
 const obtenerDatos = async (req, res) => {
     const test = await db.query("select * from obtener_lecturas('a')");
-    
+
     const dispositivos = await Dispositivo.findAll({
         include: [{
             model: Ubicacion,
             as: "ubicacion",
-            attributes: [ "ubicacion_nombre", "ubicacion_tipo" ]
+            attributes: ["ubicacion_nombre", "ubicacion_tipo"]
         }, {
             model: Medicion,
             as: "medicion",
             attributes: {
-                exclude: [ "medicion_id", "createdAt", "updatedAt" ]
+                exclude: ["medicion_id", "createdAt", "updatedAt"]
             }
         }],
         order: ["dispositivo_id"]
@@ -21,7 +21,7 @@ const obtenerDatos = async (req, res) => {
 
     const lecturas = await Lectura.findAll({
         attributes: {
-            exclude: [ "updatedAt" ]
+            exclude: ["updatedAt"]
         },
         group: [
             ["dispositivoId"],
@@ -33,7 +33,7 @@ const obtenerDatos = async (req, res) => {
         ],
         raw: true
     })
-    
+
     let lecturasMaximas;
     let lecturasRecientes;
 
@@ -42,11 +42,11 @@ const obtenerDatos = async (req, res) => {
         lecturasRecientes = [];
 
         let i = 0;
-        while(lecturasMaximas > 0){
-            if(i >= lecturas.length){
+        while (lecturasMaximas > 0) {
+            if (i >= lecturas.length) {
                 break;
             }
-            if(lecturas[i].dispositivoId === dispositivo.dispositivo_id){
+            if (lecturas[i].dispositivoId === dispositivo.dispositivo_id) {
                 lecturasRecientes.push(lecturas[i]);
                 lecturasMaximas--;
             }
@@ -59,7 +59,12 @@ const obtenerDatos = async (req, res) => {
                 lecturasRecientes.push(lectura)
             }
         });*/
-        
+        lecturasRecientes.forEach((lectura) => {
+            lectura.createdAt = {
+                hora: new Date(lectura.createdAt).toLocaleTimeString(undefined, { hour12: false, hour: "2-digit", minute: "2-digit" }),
+                fecha: new Date(lectura.createdAt).toLocaleDateString()
+            }
+        });
         dispositivo.dataValues.lecturasRecientes = lecturasRecientes;
     });
 
