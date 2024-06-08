@@ -32,7 +32,7 @@ const obtenerDatos = async (req, res) => {
             ["createdAt", "DESC"]
         ],
         raw: true
-    })
+    });
 
     let lecturasMaximas;
     let lecturasRecientes;
@@ -47,7 +47,7 @@ const obtenerDatos = async (req, res) => {
                 break;
             }
             if (lecturas[i].dispositivoId === dispositivo.dispositivo_id) {
-                lecturasRecientes.push(lecturas[i]);
+                lecturasRecientes.unshift(lecturas[i]);
                 lecturasMaximas--;
             }
             i++;
@@ -71,6 +71,55 @@ const obtenerDatos = async (req, res) => {
     return res.json(dispositivos);
 }
 
+const obtenerDatosDispositivo = async (req, res) => {
+    const dispositivoId = req.params.id;
+
+    const dispositivo = await Dispositivo.findByPk(dispositivoId, {
+        include: [{
+            model: Ubicacion,
+            as: "ubicacion",
+            attributes: ["ubicacion_nombre", "ubicacion_tipo"]
+        }, {
+            model: Medicion,
+            as: "medicion",
+            attributes: {
+                exclude: ["medicion_id", "createdAt", "updatedAt"]
+            }
+        }],
+        order: ["dispositivo_id"]
+    });
+
+    const lecturasRecientes = await Lectura.findAll({
+        where: {
+            dispositivoId
+        },
+        attributes: {
+            exclude: ["updatedAt"]
+        },
+        group: [
+            ["dispositivoId"],
+            ["lectura_id"]
+        ],
+        order: [
+            ["dispositivoId"],
+            ["createdAt", "DESC"]
+        ],
+        limit: 10,
+        raw: true
+    });
+
+    lecturasRecientes.forEach((lectura) => {
+        lectura.createdAt = {
+            hora: new Date(lectura.createdAt).toLocaleTimeString(undefined, { hour12: false, hour: "2-digit", minute: "2-digit" }),
+            fecha: new Date(lectura.createdAt).toLocaleDateString()
+        }
+    });
+    dispositivo.dataValues.lecturasRecientes = lecturasRecientes;
+    return res.json(dispositivo);
+
+}
+
 export {
-    obtenerDatos
+    obtenerDatos,
+    obtenerDatosDispositivo
 }
