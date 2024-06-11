@@ -9,14 +9,14 @@ import Ubicacion from "./Ubicacion.js";
 });*/
 
 Dispositivo.belongsTo(Medicion, {
-    foreignKey: "medicionId"
+    foreignKey: "medicion_id"
 });
 
 Dispositivo.belongsTo(Ubicacion, {
-    foreignKey: "ubicacionId"
+    foreignKey: "ubicacion_id"
 });
 Lectura.belongsTo(Dispositivo, {
-    foreignKey: "dispositivoId"
+    foreignKey: "dispositivo_id"
 });
 
 export {

@@ -1,8 +1,9 @@
 import { Dispositivo, Medicion, Lectura, Ubicacion } from "../models/index.js";
 import db from "../config/db.js";
+import { Op } from "sequelize";
 
 const obtenerDatos = async (req, res) => {
-    const test = await db.query("select * from obtener_lecturas('a')");
+    //const test = await db.query("select * from obtener_lecturas('a')");
 
     const dispositivos = await Dispositivo.findAll({
         include: [{
@@ -24,11 +25,11 @@ const obtenerDatos = async (req, res) => {
             exclude: ["updatedAt"]
         },
         group: [
-            ["dispositivoId"],
+            ["dispositivo_id"],
             ["lectura_id"]
         ],
         order: [
-            ["dispositivoId"],
+            ["dispositivo_id"],
             ["createdAt", "DESC"]
         ],
         raw: true
@@ -46,7 +47,7 @@ const obtenerDatos = async (req, res) => {
             if (i >= lecturas.length) {
                 break;
             }
-            if (lecturas[i].dispositivoId === dispositivo.dispositivo_id) {
+            if (lecturas[i].dispositivo_id === dispositivo.dispositivo_id) {
                 lecturasRecientes.unshift(lecturas[i]);
                 lecturasMaximas--;
             }
@@ -72,9 +73,9 @@ const obtenerDatos = async (req, res) => {
 }
 
 const obtenerDatosDispositivo = async (req, res) => {
-    const dispositivoId = req.params.id;
+    const dispositivo_id = req.params.id;
 
-    const dispositivo = await Dispositivo.findByPk(dispositivoId, {
+    const dispositivo = await Dispositivo.findByPk(dispositivo_id, {
         include: [{
             model: Ubicacion,
             as: "ubicacion",
@@ -91,31 +92,69 @@ const obtenerDatosDispositivo = async (req, res) => {
 
     const lecturasRecientes = await Lectura.findAll({
         where: {
-            dispositivoId
+            dispositivo_id
         },
         attributes: {
             exclude: ["updatedAt"]
         },
         group: [
-            ["dispositivoId"],
+            ["dispositivo_id"],
             ["lectura_id"]
         ],
         order: [
-            ["dispositivoId"],
+            ["dispositivo_id"],
             ["createdAt", "DESC"]
         ],
         limit: 10,
         raw: true
     });
 
+    let fecha = new Date(lecturasRecientes[lecturasRecientes.length -1].createdAt);
+    
+    fecha.setDate(fecha.getDate() - 1);
+    fecha.setMinutes(fecha.getMinutes() - 1);
+    fecha = fecha.toISOString();
+
+    const lecturasAnteriores = await Lectura.findAll({
+        where: {
+            dispositivo_id,
+            createdAt: {
+                [Op.gte]: fecha
+            }
+        },
+        attributes: {
+            exclude: ["updatedAt"]
+        },
+        group: [
+            ["dispositivo_id"],
+            ["lectura_id"]
+        ],
+        order: [
+            ["dispositivo_id"],
+            ["createdAt", "ASC"]
+        ],
+        limit: 10,
+        raw: true
+    })
+
+    lecturasRecientes.reverse();
     lecturasRecientes.forEach((lectura) => {
+        lectura.createdAt = {
+            hora: new Date(lectura.createdAt).toLocaleTimeString("es-SV", { hour12: false, hour: "2-digit", minute: "2-digit" }),
+            fecha: new Date(lectura.createdAt).toLocaleDateString()
+        }
+    });
+
+    lecturasAnteriores.forEach((lectura) => {
         lectura.createdAt = {
             hora: new Date(lectura.createdAt).toLocaleTimeString(undefined, { hour12: false, hour: "2-digit", minute: "2-digit" }),
             fecha: new Date(lectura.createdAt).toLocaleDateString()
         }
     });
+
     dispositivo.dataValues.lecturasRecientes = lecturasRecientes;
-    return res.json(dispositivo);
+    dispositivo.dataValues.lecturasAnteriores = lecturasAnteriores;
+    return res.json([dispositivo]);
 
 }
 

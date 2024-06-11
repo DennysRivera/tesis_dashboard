@@ -12,23 +12,20 @@ const postUplink = async (req, res) => {
         if(!dispositivo){
             await Dispositivo.create({
                 dispositivo_id: dispositivoId,
-                medicionId: lectura.measurement_id,
-                ubicacionId: lectura.location_id
+                medicion_id: lectura.measurement_id,
+                ubicacion_id: lectura.location_id,
+                dispositivo_lectura_intervalo: lectura.interval
             });
 
             await Lectura.create({
                 lectura_valor: lectura.value,
-                lectura_intervalo: lectura.interval,
-                lectura_intervalo_unidad: 'segundos',
-                dispositivoId: dispositivoId
+                dispositivo_id: dispositivoId
             });
         }
         else{
             await Lectura.create({
                 lectura_valor: lectura.value,
-                lectura_intervalo: lectura.interval,
-                lectura_intervalo_unidad: 'segundos',
-                dispositivoId: dispositivoId
+                dispositivo_id: dispositivoId
             });
         }
         return res.end()
