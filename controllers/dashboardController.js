@@ -90,6 +90,8 @@ const obtenerDatosDispositivo = async (req, res) => {
         order: ["dispositivo_id"]
     });
 
+    //TODO: Realizar una sola consulta
+
     const lecturasRecientes = await Lectura.findAll({
         where: {
             dispositivo_id
@@ -97,20 +99,20 @@ const obtenerDatosDispositivo = async (req, res) => {
         attributes: {
             exclude: ["updatedAt"]
         },
-        group: [
+        /*group: [
             ["dispositivo_id"],
             ["lectura_id"]
-        ],
+        ],*/
         order: [
-            ["dispositivo_id"],
+            //["dispositivo_id"],
             ["createdAt", "DESC"]
         ],
         limit: 10,
         raw: true
     });
 
-    let fecha = new Date(lecturasRecientes[lecturasRecientes.length -1].createdAt);
-    
+    let fecha = new Date(lecturasRecientes[lecturasRecientes.length - 1].createdAt);
+
     fecha.setDate(fecha.getDate() - 1);
     fecha.setMinutes(fecha.getMinutes() - 1);
     fecha = fecha.toISOString();
@@ -125,12 +127,12 @@ const obtenerDatosDispositivo = async (req, res) => {
         attributes: {
             exclude: ["updatedAt"]
         },
-        group: [
+        /*group: [
             ["dispositivo_id"],
             ["lectura_id"]
-        ],
+        ],*/
         order: [
-            ["dispositivo_id"],
+            //["dispositivo_id"],
             ["createdAt", "ASC"]
         ],
         limit: 10,
@@ -154,11 +156,39 @@ const obtenerDatosDispositivo = async (req, res) => {
 
     dispositivo.dataValues.lecturasRecientes = lecturasRecientes;
     dispositivo.dataValues.lecturasAnteriores = lecturasAnteriores;
+    console.log(dispositivo.dataValues)
     return res.json([dispositivo]);
 
 }
 
+const lecturasEnTabla = async (req, res) => {
+    const dispositivo_id = req.params.id;
+    const { fechaInicio, fechaFin } = req.query;
+
+    const lecturas = await Lectura.findAll({
+        where: {
+            dispositivo_id,
+            createdAt: {
+                [Op.and]: {
+                    [Op.gte]: fechaInicio,
+                    [Op.lt]: fechaFin
+                }
+            }
+        },
+        attributes: {
+            exclude: ["lectura_id", "updatedAt", "dispositivo_id"]
+        },
+        order: [
+            ["createdAt", "ASC"]
+        ],
+        raw: true
+    })
+
+    return res.json(lecturas);
+}
+
 export {
     obtenerDatos,
-    obtenerDatosDispositivo
+    obtenerDatosDispositivo,
+    lecturasEnTabla
 }

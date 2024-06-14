@@ -77,7 +77,7 @@ const crearDatosPrueba = async () => {
     }
     let fecha = new Date(Date.now());
     fecha.setDate(fecha.getDate() - 1);
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 1500; i++) {
         fecha.setMinutes(fecha.getMinutes() + 5)
         //req.body.uplink_message.decoded_payload.value = Number((32 + Math.random() * 20).toFixed(2));
         try {
@@ -101,7 +101,7 @@ const crearDatosPrueba = async () => {
             }
             else {
                 await Lectura.create({
-                    lectura_valor: lectura.value,
+                    lectura_valor: Number((32 + Math.random() * 20).toFixed(2)),
                     dispositivo_id: dispositivoId,
                     createdAt: fecha.toISOString()
                 });
@@ -110,6 +110,41 @@ const crearDatosPrueba = async () => {
             console.log(error)
         }
     }
+    console.log("terminó for");
+    setInterval(async () => {
+        console.log("nuevo");
+        fecha.setMinutes(fecha.getMinutes() + 5)
+        //req.body.uplink_message.decoded_payload.value = Number((32 + Math.random() * 20).toFixed(2));
+        try {
+            const lectura = req.body.uplink_message.decoded_payload
+            const dispositivoId = req.body.end_device_ids.device_id
+            const dispositivo = await Dispositivo.findByPk(dispositivoId)
+
+            if (!dispositivo) {
+                await Dispositivo.create({
+                    dispositivo_id: dispositivoId,
+                    medicion_id: lectura.measurement_id,
+                    ubicacion_id: lectura.location_id,
+                    dispositivo_lectura_intervalo: lectura.interval
+                });
+
+                await Lectura.create({
+                    lectura_valor: Number((32 + Math.random() * 20).toFixed(2)),
+                    dispositivo_id: dispositivoId,
+                    createdAt: fecha.toISOString()
+                });
+            }
+            else {
+                await Lectura.create({
+                    lectura_valor: Number((32 + Math.random() * 20).toFixed(2)),
+                    dispositivo_id: dispositivoId,
+                    createdAt: fecha.toISOString()
+                });
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }, 60000)
 }
 
 if (process.argv[2] === "-i") {
