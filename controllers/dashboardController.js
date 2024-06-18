@@ -3,7 +3,7 @@ import db from "../config/db.js";
 import { Op } from "sequelize";
 
 const obtenerDatos = async (req, res) => {
-    //const test = await db.query("select * from obtener_lecturas('a')");
+    const { fechaInicio } = req.query;
 
     const dispositivos = await Dispositivo.findAll({
         include: [{
@@ -21,6 +21,11 @@ const obtenerDatos = async (req, res) => {
     });
 
     const lecturas = await Lectura.findAll({
+        where: {
+            createdAt: {
+                [Op.gte]: fechaInicio
+            }
+        },
         attributes: {
             exclude: ["updatedAt"]
         },
@@ -59,13 +64,13 @@ const obtenerDatos = async (req, res) => {
                 lecturasMaximas--;
                 lecturasRecientes.push(lectura)
             }
-        });*/
+        });
         lecturasRecientes.forEach((lectura) => {
             lectura.createdAt = {
                 hora: new Date(lectura.createdAt).toLocaleTimeString(undefined, { hour12: false, hour: "2-digit", minute: "2-digit" }),
                 fecha: new Date(lectura.createdAt).toLocaleDateString()
             }
-        });
+        });*/
         dispositivo.dataValues.lecturasRecientes = lecturasRecientes;
     });
 
@@ -89,8 +94,6 @@ const obtenerDatosDispositivo = async (req, res) => {
         }],
         order: ["dispositivo_id"]
     });
-
-    //TODO: Realizar una sola consulta
 
     const lecturasRecientes = await Lectura.findAll({
         where: {
@@ -140,7 +143,7 @@ const obtenerDatosDispositivo = async (req, res) => {
     })
 
     lecturasRecientes.reverse();
-    lecturasRecientes.forEach((lectura) => {
+    /*lecturasRecientes.forEach((lectura) => {
         lectura.createdAt = {
             hora: new Date(lectura.createdAt).toLocaleTimeString("es-SV", { hour12: false, hour: "2-digit", minute: "2-digit" }),
             fecha: new Date(lectura.createdAt).toLocaleDateString()
@@ -152,11 +155,11 @@ const obtenerDatosDispositivo = async (req, res) => {
             hora: new Date(lectura.createdAt).toLocaleTimeString(undefined, { hour12: false, hour: "2-digit", minute: "2-digit" }),
             fecha: new Date(lectura.createdAt).toLocaleDateString()
         }
-    });
+    });*/
 
     dispositivo.dataValues.lecturasRecientes = lecturasRecientes;
     dispositivo.dataValues.lecturasAnteriores = lecturasAnteriores;
-    console.log(dispositivo.dataValues)
+    
     return res.json([dispositivo]);
 
 }
