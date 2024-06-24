@@ -1,6 +1,8 @@
 import { DataTypes } from "sequelize";
 import db from "../config/db.js";
 
+// Modelo para la tabla Mediciones
+// Incluye los atributos para id, nombre, descripcion, unidad y abreviatura
 const Medicion = db.define('medicion', {
     medicion_id: {
         type: DataTypes.INTEGER,
@@ -25,6 +27,14 @@ const Medicion = db.define('medicion', {
     }
 }, {
     tableName: 'Mediciones'
+    /*
+    Sequelize agrega las columnas createdAt y updatedAt por defecto
+    Se puede deshabilitar ambas con
+    timestamps: false
+    o individualmente con
+    createdAt: false
+    updatedAt: false
+    */
 });
 
 export default Medicion;

@@ -1,72 +1,59 @@
-import mediciones from './mediciones.js';
-import sectores from './sectores.js';
-import ubicaciones from './ubicaciones.js';
-import db from '../config/db.js';
-import { Medicion, Sector, Ubicacion } from '../models/index.js';
+// Seeder para la cración de regfistros en la BD
 
+// Archivos con la información a insertar
+import mediciones from './mediciones.js';
+import ubicaciones from './ubicaciones.js';
+//
+
+import db from '../config/db.js';
+import { Medicion, Ubicacion } from '../models/index.js';
+
+// Función para insertar los datos
 const importData = async () => {
     try {
+        // En un escenario sin errores,
+        // se estabece conexión con la BD y se insertan los datos
         await db.authenticate();
         await db.sync();
 
+        // Creación de Mediciones y Ubicaciones como promesas
+        // ya que una no depende de la otra
         await Promise.all([
             Medicion.bulkCreate(mediciones),
-            Sector.bulkCreate(sectores),
             Ubicacion.bulkCreate(ubicaciones)
         ]);
 
-        /*
-        await Medicion.bulkCreate(mediciones);
-
-        const sectoresLista = await Sector.bulkCreate(sectores);
-        sectoresLista.forEach((sector) => {
-            ubicaciones.forEach((ubicacion) => {
-                if(ubicacion.ubicacion_nombre.match(/Aula A/i) && sector.sector_nombre.match(/Aulas 'A'/i)){
-                    ubicacion.sectorId = sector.sector_id;
-                }
-                else if(ubicacion.ubicacion_nombre.match(/Aula B/i) && sector.sector_nombre.match(/Aulas 'B'/i)){
-                    ubicacion.sectorId = sector.sector_id;
-                }
-                else if(ubicacion.ubicacion_nombre.match(/Aula D/i) && sector.sector_nombre.match(/Aulas 'D'/i)){
-                    ubicacion.sectorId = sector.sector_id;
-                }
-                else if(ubicacion.ubicacion_nombre.match(/Magna/) && sector.sector_nombre.match(/Magna/)){
-                    ubicacion.sectorId = sector.sector_id;
-                }
-                else if(ubicacion.ubicacion_nombre.match(/Cancha/) && sector.sector_nombre.match(/Polideportivo/)){
-                    ubicacion.sectorId = sector.sector_id;
-                }
-                else if(ubicacion.ubicacion_nombre.match(/Estacionamiento/) && sector.sector_nombre.match(/Estacionamiento/)){
-                    ubicacion.sectorId = sector.sector_id;
-                }
-                else if(ubicacion.ubicacion_nombre.match(/Magna/) && sector.sector_nombre.match(/Magna/)){
-                    ubicacion.sectorId = sector.sector_id;
-                }
-            })
-        })
-
-        
-
-        console.log(ubicaciones);
-        await Ubicacion.bulkCreate(ubicaciones);*/
-
+        // Se cierra el proceso sin errores
         process.exit(0);
     } catch (error) {
+        // En caso de error, imprimir el mensaje
+        // y cerrar proceso con presencia de error
         console.log(error);
         process.exit(1);
     }
 }
 
+// Función para eliminar datos
+// Uso principal para pruebas
 const deleteData = async () => {
     try {
+        // En un escenario sin errores, se estabece conexión con la BD,
+        // se borran los datos de todas las tablas
+        // y se reinician los contadores para los tipo SERIAL
         await db.sync({ force: true });
+
+        // Se cierra el proceso sin errores
         process.exit(0);
     } catch (error) {
+        // En caso de error, imprimir el mensaje
+        // y cerrar proceso con presencia de error
         console.log(error);
         process.exit(1);
     }
 }
 
+// Se evalua los el argumento que acompaña al archivo
+// para ejecutar una función
 if (process.argv[2] === "-i") {
     importData();
 }

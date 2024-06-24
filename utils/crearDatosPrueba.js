@@ -1,6 +1,13 @@
+// Archivo para la creación de datos de prueba
+// para simular el envío de datos desde un dispositivo real
+
+// USO ESTRICTAMENTE PARA PRUEBAS
+
 import { Dispositivo, Lectura } from "../models/index.js";
 
 const crearDatosPrueba = async () => {
+
+    // Copia del cuerpo de la solicitud enviada por el servidor TTN
     let req = {
         body: {
             "end_device_ids": {
@@ -75,11 +82,19 @@ const crearDatosPrueba = async () => {
             }
         }
     }
+
+    // Obtener la fecha del día anterior
     let fecha = new Date(Date.now());
     fecha.setDate(fecha.getDate() - 1);
+
+    // Bucle para crear registros en Dispositivos y Lecturas
+    // (error de cálculo con el límite)
     for (let i = 0; i < 1500; i++) {
+        // Se tiene previsto que uno de los dispositivos reales
+        // tome nuevas lecturas cada 5 minutos
         fecha.setMinutes(fecha.getMinutes() + 5)
-        //req.body.uplink_message.decoded_payload.value = Number((32 + Math.random() * 20).toFixed(2));
+        
+        // Misma funcionalidad que controllers/dispositivoController.js
         try {
             const lectura = req.body.uplink_message.decoded_payload
             const dispositivoId = req.body.end_device_ids.device_id
@@ -94,6 +109,7 @@ const crearDatosPrueba = async () => {
                 });
 
                 await Lectura.create({
+                    // Generación de número aleatorio como valor de la lectura
                     lectura_valor: Number((32 + Math.random() * 20).toFixed(2)),
                     dispositivo_id: dispositivoId,
                     createdAt: fecha.toISOString()
@@ -110,11 +126,15 @@ const crearDatosPrueba = async () => {
             console.log(error)
         }
     }
-    console.log("terminó for");
+
+    // Mensaje para avisar finalización de for
+    console.log("Valores insertados");
+
+    // Función para seguir insertando valores cada 1 minuto
     setInterval(async () => {
-        console.log("nuevo");
+        console.log("Insertado nuevo valor");
         fecha.setMinutes(fecha.getMinutes() + 5)
-        //req.body.uplink_message.decoded_payload.value = Number((32 + Math.random() * 20).toFixed(2));
+        
         try {
             const lectura = req.body.uplink_message.decoded_payload
             const dispositivoId = req.body.end_device_ids.device_id
@@ -147,6 +167,7 @@ const crearDatosPrueba = async () => {
     }, 60000)
 }
 
+// Se evalua el argumento que sigue al archivo para ejecutar la función
 if (process.argv[2] === "-i") {
     crearDatosPrueba();
 }
