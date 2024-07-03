@@ -78,12 +78,15 @@ const obtenerDatos = async (req, res) => {
                 // Como todas lecturas están en un solo arreglo,
                 // se verifica si le pertenecen al dispositivo actual en el forEach
                 if (lecturas[i].dispositivo_id === dispositivo.dispositivo_id) {
-                    // TODO: Mejorar arreglo
-                    lecturasRecientes.unshift(lecturas[i]);
+                    // Se inserta la lectura en el arreglo
+                    // y se disminuye el número de elementos que puede aceptar
+                    lecturasRecientes.push(lecturas[i]);
                     lecturasMaximas--;
                 }
                 i++;
             }
+
+            lecturasRecientes.reverse();
 
             // Se agrega el arreglo de las lecturas recientes
             // al dispositivo correspondiente
@@ -129,13 +132,18 @@ const obtenerDatosDispositivo = async (req, res, next) => {
                 exclude: ["updatedAt"]
             },
             order: [
-                ["createdAt", "ASC"]
+                ["createdAt", "DESC"]
             ],
             limit: 10,
             raw: true
         });
 
-        // Se guarda la fecha de la última lectura del arreglo
+        // Se invierte el orden del arreglo
+        // para que las lecturas más antiguas
+        // estén al inicio
+        lecturasRecientes.reverse();
+
+        // Se guarda la fecha de la lectura más antigua del arreglo
         let fecha = new Date(lecturasRecientes[0].createdAt);
 
         // Se modifica la fecha para 24 horas y 1 minuto antes
@@ -160,9 +168,6 @@ const obtenerDatosDispositivo = async (req, res, next) => {
             limit: 10,
             raw: true
         })
-
-        // TODO: Cambiar por otro método de reversión
-        //lecturasRecientes.reverse();
 
         // Se agrega el arreglo de las lecturas recientes y
         // anteriores al dispositivo
