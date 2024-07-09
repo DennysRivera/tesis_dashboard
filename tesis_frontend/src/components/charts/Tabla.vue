@@ -6,6 +6,7 @@ import { axiosCliente } from "@/config/axios.js";
 const route = useRoute();
 const lecturas = ref([]);
 const mostrarAlerta = ref(false);
+const mensajeAlerta = ref("");
 const lecturasAMostrar = ref([]);
 const paginaActual = ref(0);
 const porPagina = ref(10);
@@ -34,6 +35,9 @@ const obtenerDatosFecha = () => {
       llenarLecturasMostrar(0);
     })
     .catch((error) => {
+      if (error.response.status >= 400 && error.response.status < 500) {
+        mensajeAlerta.value = error.response.data;
+      }
       mostrarAlerta.value = true;
     });
 };
@@ -83,57 +87,58 @@ function cambiarPorPagina(cantidad) {
 </script>
 
 <template>
+  <Alerta v-model="mostrarAlerta" :mensaje="mensajeAlerta" class="alerta" />
   <div id="tabla-container">
     <div id="tabla-paginacion">
       <div id="tabla">
-      <BTableSimple>
-        <BThead>
-          <BTr>
-            <BTh>Fecha</BTh>
-            <BTh>Hora</BTh>
-            <BTh>Valor</BTh>
-          </BTr>
-        </BThead>
-        <BTbody>
-          <BTr v-for="lectura in lecturasAMostrar">
-            <BTd>{{ lectura.createdAt.fecha }}</BTd>
-            <BTd>{{ lectura.createdAt.hora }}</BTd>
-            <BTd>{{ lectura.lectura_valor }}</BTd>
-          </BTr>
-        </BTbody>
-      </BTableSimple>
-    </div>
-    <div class="paginacion">
-      <BButtonGroup>
-        <BButton
-          pill
-          @click="llenarLecturasMostrar(-1)"
-          :disabled="paginaActual <= 0"
-          >Anterior</BButton
-        >
-        <BButton
-          pill
-          @click="cambiarPaginaActual(0)"
-          :disabled="paginaActual <= 0"
-          >1</BButton
-        >
-        <BButton pill variant="primary" disabled>{{
-          paginaActual + 1
-        }}</BButton>
-        <BButton
-          pill
-          @click="cambiarPaginaActual(totalPaginas - 1)"
-          :disabled="paginaActual >= totalPaginas - 1"
-          >{{ totalPaginas }}</BButton
-        >
-        <BButton
-          pill
-          @click="llenarLecturasMostrar(1)"
-          :disabled="paginaActual >= totalPaginas - 1"
-          >Siguiente</BButton
-        >
-      </BButtonGroup>
-    </div>
+        <BTableSimple>
+          <BThead>
+            <BTr>
+              <BTh>Fecha</BTh>
+              <BTh>Hora</BTh>
+              <BTh>Valor</BTh>
+            </BTr>
+          </BThead>
+          <BTbody>
+            <BTr v-for="lectura in lecturasAMostrar">
+              <BTd>{{ lectura.createdAt.fecha }}</BTd>
+              <BTd>{{ lectura.createdAt.hora }}</BTd>
+              <BTd>{{ lectura.lectura_valor }}</BTd>
+            </BTr>
+          </BTbody>
+        </BTableSimple>
+      </div>
+      <div class="paginacion">
+        <BButtonGroup>
+          <BButton
+            pill
+            @click="llenarLecturasMostrar(-1)"
+            :disabled="paginaActual <= 0"
+            >Anterior</BButton
+          >
+          <BButton
+            pill
+            @click="cambiarPaginaActual(0)"
+            :disabled="paginaActual <= 0"
+            >1</BButton
+          >
+          <BButton pill variant="primary" disabled>{{
+            paginaActual + 1
+          }}</BButton>
+          <BButton
+            pill
+            @click="cambiarPaginaActual(totalPaginas - 1)"
+            :disabled="paginaActual >= totalPaginas - 1"
+            >{{ totalPaginas }}</BButton
+          >
+          <BButton
+            pill
+            @click="llenarLecturasMostrar(1)"
+            :disabled="paginaActual >= totalPaginas - 1"
+            >Siguiente</BButton
+          >
+        </BButtonGroup>
+      </div>
     </div>
     <div class="lateral">
       <div id="calendario">
@@ -194,5 +199,11 @@ function cambiarPorPagina(cantidad) {
   width: 20%;
   display: flex;
   flex-direction: column;
+}
+
+.alerta {
+  position: absolute;
+  top: 20%;
+  left: 30%;
 }
 </style>

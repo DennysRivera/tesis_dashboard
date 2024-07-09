@@ -41,10 +41,10 @@ const graficosDisponibles = shallowRef([Linea, Columna, Area, Barra]);
 const graficoActualNumero = ref(0);
 const show = ref(false);
 const mostrarAlerta = ref(false);
+const mensajeAlerta = ref("");
 
 // Función para obtener los datos de cada dispositivo desde la API
 const obtenerDatos = async () => {
-
   // Petición para información de un dispositivo específico
   await axiosCliente
     .get(`${route.params.dispositivoId}`)
@@ -56,36 +56,38 @@ const obtenerDatos = async () => {
     })
     .catch((error) => {
       // Para una promesa rechazada se muestra una alerta
+      if (error.response.status >= 400 && error.response.status < 500) {
+        mensajeAlerta.value = error.response.data;
+      }
       mostrarAlerta.value = true;
     });
 };
 
 // Función para convertir de fecha ISO a local
 const convertirFechaIso = (dispositivo) => {
-
   // Se recorren los arreglo con las lecturas recientes y antiguas
-    dispositivo.lecturasRecientes.forEach((lectura) => {
-            // Para cada una se divide en hora (formato 24 horas) con minutos
-      // y en fecha
-      lectura.createdAt = {
-        hora: new Date(lectura.createdAt).toLocaleTimeString(undefined, {
-          hour12: false,
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        fecha: new Date(lectura.createdAt).toLocaleDateString("es-SV"),
-      };
-    });
-    dispositivo.lecturasAnteriores.forEach((lectura) => {
-      lectura.createdAt = {
-        hora: new Date(lectura.createdAt).toLocaleTimeString(undefined, {
-          hour12: false,
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        fecha: new Date(lectura.createdAt).toLocaleDateString("es-SV"),
-      };
-    });
+  dispositivo.lecturasRecientes.forEach((lectura) => {
+    // Para cada una se divide en hora (formato 24 horas) con minutos
+    // y en fecha
+    lectura.createdAt = {
+      hora: new Date(lectura.createdAt).toLocaleTimeString(undefined, {
+        hour12: false,
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      fecha: new Date(lectura.createdAt).toLocaleDateString("es-SV"),
+    };
+  });
+  dispositivo.lecturasAnteriores.forEach((lectura) => {
+    lectura.createdAt = {
+      hora: new Date(lectura.createdAt).toLocaleTimeString(undefined, {
+        hour12: false,
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      fecha: new Date(lectura.createdAt).toLocaleDateString("es-SV"),
+    };
+  });
 };
 
 // Hook de Vue. Usado para realizar la petición a la API
@@ -105,7 +107,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <Alerta v-model="mostrarAlerta" />
+  <Alerta v-model="mostrarAlerta" :mensaje="mensajeAlerta" class="alerta" />
   <div id="grafico-detallado-container">
     <div v-for="dispositivo in dispositivos" class="grafico-div">
       <BDropdown v-model="show" text="Cambiar gráfico" variant="primary">
@@ -125,7 +127,19 @@ onBeforeUnmount(() => {
   </div>
   <div id="informacion-medida">
     <h2>Información sobre esta medición</h2>
-    <h3>{{ dispositivos[0] ? dispositivos[0].medicion.medicion_fenomeno : "" }}</h3>
-    <p>{{ dispositivos[0] ? dispositivos[0].medicion.medicion_descripcion: "" }}</p>
+    <h3>
+      {{ dispositivos[0] ? dispositivos[0].medicion.medicion_fenomeno : "" }}
+    </h3>
+    <p>
+      {{ dispositivos[0] ? dispositivos[0].medicion.medicion_descripcion : "" }}
+    </p>
   </div>
 </template>
+
+<style scoped>
+.alerta {
+  position: absolute;
+  top: 20%;
+  left: 30%;
+}
+</style>

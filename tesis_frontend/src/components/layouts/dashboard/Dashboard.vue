@@ -32,6 +32,7 @@ graficosAleatoriosNumeros: números aleatorios a usar para aleatoriedad de gráf
 const dispositivos = ref([]);
 const numerosAleatorios = ref([]);
 const mostrarAlerta = ref(false);
+const mensajeAlerta = ref("");
 const graficosDisponibles = shallowRef([Linea, Columna, Area, Barra]);
 let graficosAleatoriosNumeros = [];
 
@@ -57,6 +58,9 @@ const obtenerDatos = async () => {
     })
     .catch((error) => {
       // Para una promesa rechazada se muestra una alerta
+      if (error.response.status >= 400 && error.response.status < 500) {
+        mensajeAlerta.value = error.response.data;
+      }
       mostrarAlerta.value = true;
     });
 };
@@ -126,7 +130,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Alerta v-model="mostrarAlerta" />
+  <Alerta v-model="mostrarAlerta" :mensaje="mensajeAlerta" class="alerta" />
   <div id="tarjetas-informativas-div">
     <!-- La primera tarjeta es fija para la cantidad de dispositivos disponibles -->
     <TarjetaInformativa
@@ -190,6 +194,12 @@ onMounted(async () => {
 
 .grafico-div {
   width: 40%;
+}
+
+.alerta{
+  position: absolute;
+  top: 20%;
+  left: 30%;
 }
 
 @media (max-width: 1070) {
