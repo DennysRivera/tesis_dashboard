@@ -2,6 +2,7 @@
 import { onMounted, ref, reactive } from "vue";
 import { useRoute } from "vue-router";
 import { axiosCliente } from "@/config/axios.js";
+import { lecturasToCsv } from "./funcionesGraficos.js";
 
 const route = useRoute();
 const lecturas = ref([]);
@@ -162,6 +163,7 @@ function cambiarPorPagina(cantidad) {
           <BButton pill @click="cambiarPorPagina(n)">{{ n }}</BButton>
         </BButtonGroup>
       </div>
+      <BButton v-if="lecturas.length" @click="lecturasToCsv(lecturas)">Descargar historial</BButton>
     </div>
   </div>
 </template>
