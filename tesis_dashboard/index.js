@@ -1,14 +1,22 @@
 // Importanción de módulos:
 // express como módulo principal para usar el framework
 // cors para la configuración CORS
+// morgan para logger
+// helmet para seteo de headers para response
 import express from "express";
 import cors from "cors";
+import morgan from "morgan";
+import helmet from "helmet";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // Importación de librerías
 // db que contiene la configuración para la conexión a la base de datos
 // router que contiene las rutas disponibles en la aplicación
 import db from "./config/db.js";
 import router from "./routes/appRoutes.js";
+import { morganFormato } from "./utils/morganFormato.js";
 
 /*
 Se inicia ina instancia de express,
@@ -18,6 +26,15 @@ o el 3000 por defecto si no existe la variable
 */
 const app = express();
 const port = process.env.PORT || 3000
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(morgan(morganFormato, {
+    stream: fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" })
+}));
+
+app.use(helmet());
 
 // Middleware proporcionado por express para
 // la lectura del cuerpo de una petición en formato JSON

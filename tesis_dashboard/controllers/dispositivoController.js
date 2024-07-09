@@ -3,7 +3,7 @@ import { Dispositivo, Lectura } from "../models/index.js";
 
 // Función para la creación de dispositivos y lecturas
 // en sus respectivas tablas en la BD
-const postUplink = async (req, res) => {
+const postUplink = async (req, res, next) => {
     try {
         /*
         Se guarda toda la información del payload:
@@ -53,6 +53,7 @@ const postUplink = async (req, res) => {
         return res.end();
     } catch (error) {
         console.log(error)
+        next();
     }
 }
 
