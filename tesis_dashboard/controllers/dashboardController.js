@@ -105,6 +105,7 @@ const obtenerDatos = async (req, res) => {
         return res.json(dispositivos);
     } catch (error) {
         if (error.status) {
+            res.statusMessage = error.message;
             return res.status(error.status).send(error.message);
         }
         console.log(error)
@@ -195,6 +196,7 @@ const obtenerDatosDispositivo = async (req, res, next) => {
         return res.json([dispositivo]);
     } catch (error) {
         if (error.status) {
+            res.statusMessage = error.message;
             return res.status(error.status).send(error.message);
         }
         console.log(error)
@@ -245,6 +247,7 @@ const lecturasEnTabla = async (req, res) => {
         return res.json(lecturas);
     } catch (error) {
         if (error.status) {
+            res.statusMessage = error.message;
             return res.status(error.status).send(error.message);
         }
         console.log(error)
