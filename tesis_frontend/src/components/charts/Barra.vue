@@ -56,8 +56,7 @@ const chartOptions = ref({
       fontSize: "15px",
     },
   },
-  /*xaxis: {
-    categories: tiemposEnArreglo(props.dispositivo.lecturasRecientes),
+  xaxis: {
     title: {
       text: "Hora de medición",
       style: {
@@ -74,7 +73,7 @@ const chartOptions = ref({
         color: "black",
       },
     },
-  },*/
+  },
   legend: {
     customLegendItems: [
       "Mediciones recientes",

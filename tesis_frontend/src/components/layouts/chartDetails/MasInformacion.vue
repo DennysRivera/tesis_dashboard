@@ -10,13 +10,18 @@ const tab = ref("grafico");
     <div class="botones-container">
       <!-- "Botón" para regresar a la vista principal de dashboard -->
       <div class="btn-cerrar-div">
-        <RouterLink variant="danger" class="btn-cerrar" :to="{ name: 'dashboard' }">X</RouterLink>
+        <RouterLink
+          variant="danger"
+          class="btn-cerrar"
+          :to="{ name: 'dashboard' }"
+          >X</RouterLink
+        >
       </div>
 
       <!-- Pestañas para cambiar entre la vista de gráfico y de tabla -->
       <!-- Usa componentes dinámicos que renderizan un botón deshabilitado o un router-link -->
       <component
-      :is="tab === 'grafico' ? 'button' : 'router-link'"
+        :is="tab === 'grafico' ? 'button' : 'router-link'"
         :to="{ name: 'grafico-detallado' }"
         class="btn-tab"
         :disabled="tab === 'grafico'"
@@ -24,7 +29,7 @@ const tab = ref("grafico");
         >Gráfico</component
       >
       <component
-      :is="tab === 'tabla' ? 'button' : 'router-link'"
+        :is="tab === 'tabla' ? 'button' : 'router-link'"
         :to="{ name: 'tabla-historial' }"
         class="btn-tab"
         :disabled="tab === 'tabla'"
@@ -38,10 +43,10 @@ const tab = ref("grafico");
 
 <style scoped>
 #mas-informacion-div {
-  height: 90vh;
+  height: 100%;
 }
 
-.btn-cerrar-div{
+.btn-cerrar-div {
   display: inline-block;
   height: 100%;
   margin-right: 1rem;
@@ -49,7 +54,7 @@ const tab = ref("grafico");
   top: -10px;
 }
 
-.btn-cerrar{
+.btn-cerrar {
   padding: 0.5rem 0.7rem;
   background-color: #dc3545;
   border-radius: 5px;

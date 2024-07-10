@@ -109,35 +109,39 @@ function cambiarPorPagina(cantidad) {
           </BTbody>
         </BTableSimple>
       </div>
-      <div class="paginacion">
+      <div class="paginacion" v-if="lecturas.length">
         <BButtonGroup>
-          <BButton
-            pill
+          <button
             @click="llenarLecturasMostrar(-1)"
             :disabled="paginaActual <= 0"
-            >Anterior</BButton
+            class="btn-pagina pantone"
           >
-          <BButton
-            pill
+            Anterior
+          </button>
+          <button
             @click="cambiarPaginaActual(0)"
             :disabled="paginaActual <= 0"
-            >1</BButton
+            class="btn-pagina pantone"
           >
-          <BButton pill variant="primary" disabled>{{
-            paginaActual + 1
-          }}</BButton>
-          <BButton
-            pill
+            1
+          </button>
+          <button variant="primary" disabled class="btn-pagina pantone">
+            {{ paginaActual + 1 }}
+          </button>
+          <button
             @click="cambiarPaginaActual(totalPaginas - 1)"
             :disabled="paginaActual >= totalPaginas - 1"
-            >{{ totalPaginas }}</BButton
+            class="btn-pagina pantone"
           >
-          <BButton
-            pill
+            {{ totalPaginas }}
+          </button>
+          <button
             @click="llenarLecturasMostrar(1)"
             :disabled="paginaActual >= totalPaginas - 1"
-            >Siguiente</BButton
+            class="btn-pagina pantone"
           >
+            Siguiente
+          </button>
         </BButtonGroup>
       </div>
     </div>
@@ -148,9 +152,7 @@ function cambiarPorPagina(cantidad) {
           <BFormInput type="date" v-model="fechas.inicio" />
           <p>Hasta:</p>
           <BFormInput type="date" v-model="fechas.fin" />
-          <BButton type="submit" variant="primary" class="btn-buscar"
-            >Buscar</BButton
-          >
+          <button type="submit" class="btn-buscar pantone">Buscar</button>
         </BForm>
       </div>
       <div class="botones-porpagina">
@@ -160,31 +162,44 @@ function cambiarPorPagina(cantidad) {
           class="btn-numelementos"
           v-for="n in [10, 20, 50, 100, 1000]"
         >
-          <BButton pill @click="cambiarPorPagina(n)">{{ n }}</BButton>
+          <button class="pantone" @click="cambiarPorPagina(n)">{{ n }}</button>
         </BButtonGroup>
       </div>
-      <BButton v-if="lecturas.length" @click="lecturasToCsv(lecturas)">Descargar historial</BButton>
+      <button
+        v-if="lecturas.length"
+        @click="lecturasToCsv(lecturas)"
+        class="btn-descargar pantone"
+      >
+        Descargar historial
+      </button>
     </div>
   </div>
 </template>
 
 <style scoped>
 #tabla-container {
+  height: 100%;
   display: flex;
   justify-content: space-evenly;
 }
 
 #tabla-paginacion {
-  width: 70%;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 #tabla {
-  width: 100%;
-  height: 80vh;
+  width: 90%;
+  min-height: 70vh;
+  max-height: 70vh;
   overflow: auto;
+}
+
+#calendario p {
+  margin: 0;
 }
 
 .btn-buscar {
@@ -193,8 +208,42 @@ function cambiarPorPagina(cantidad) {
   margin: 1rem auto;
 }
 
+.btn-descargar {
+  display: block;
+  width: 80%;
+  margin: 1rem auto;
+}
+
+.botones-porpagina {
+  margin: 0 auto 10px auto;
+}
+
+.btn-numelementos {
+  margin: 0 5px 5px 0;
+}
+
+.btn-buscar,
+.botones-porpagina button,
+.btn-pagina,
+.btn-descargar {
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  color: white;
+}
+
+.btn-pagina,
+.botones-porpagina button {
+  padding: 5px 12px;
+  border-radius: 50px;
+}
+
 .paginacion {
-  margin: auto auto;
+  margin: 0 auto;
+}
+
+.btn-pagina {
+  margin: 5px;
 }
 
 .lateral {
@@ -207,5 +256,66 @@ function cambiarPorPagina(cantidad) {
   position: absolute;
   top: 20%;
   left: 30%;
+}
+
+@media (max-width: 500px) {
+  #tabla-container {
+    flex-direction: column-reverse;
+  }
+
+  #tabla {
+    margin-top: 20px;
+  }
+
+  .lateral {
+    width: 100%;
+  }
+
+  #calendario {
+    width: 70%;
+    margin: 0 auto;
+  }
+
+  .botones-porpagina {
+    margin: 0 auto 10px auto;
+  }
+
+  .btn-pagina {
+    margin: 0 1px;
+  }
+
+  .alerta {
+  left: 15%;
+}
+}
+
+@media (width > 500px) and (width <= 600px) {
+  .btn-pagina {
+    margin: 0 3px 10px auto;
+  }
+
+  .btn-buscar {
+    margin: 0.6rem auto;
+  }
+
+  .btn-descargar {
+    padding: 5px 0;
+  }
+}
+
+@media (width > 500px) and (width <= 800px) {
+  #tabla-paginacion {
+    width: 70%;
+  }
+
+  .lateral {
+    width: 30%;
+  }
+}
+
+@media (min-height: 845px) {
+  #tabla {
+    max-height: 60vh;
+  }
 }
 </style>

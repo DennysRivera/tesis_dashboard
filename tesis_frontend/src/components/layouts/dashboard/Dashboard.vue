@@ -178,7 +178,7 @@ onMounted(async () => {
 
 <style scoped>
 #tarjetas-informativas-div {
-  width: 90vw;
+  width: 90%;
   margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
@@ -196,21 +196,19 @@ onMounted(async () => {
   width: 40%;
 }
 
-.alerta{
+.alerta {
   position: absolute;
   top: 20%;
   left: 30%;
 }
 
-@media (max-width: 1070) {
-  #tarjetas-informativas-div {
-    width: 90vw;
-    margin: 0 auto;
-    padding: 0 10px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    background-color: red;
+@media (width < 600px) {
+  #graficos-container {
+    flex-direction: column;
+  }
+
+  .grafico-div {
+    width: 100%;
   }
 }
 </style>
