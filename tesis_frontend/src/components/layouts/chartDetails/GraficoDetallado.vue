@@ -96,7 +96,7 @@ onMounted(async () => {
   await obtenerDatos();
 
   // Se establece el intervalo para volver a solicitar datos
-  intervalId.value = setInterval(obtenerDatos, 60000);
+  intervalId.value = setInterval(obtenerDatos, 300000);
 });
 
 // Hooke de Vue. Usado para limpiar la variable con el intervalo
