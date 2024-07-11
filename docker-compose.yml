@@ -5,9 +5,9 @@ services:
     image: postgres:16.3-alpine3.18
     restart: unless-stopped
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=pass1234
-      - POSTGRES_DB=uca_devices
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASS}
+      - POSTGRES_DB=${POSTGRES_DATABASE}
     volumes:
       - db:/var/lib/postgresql/data
     networks:
@@ -22,11 +22,11 @@ services:
     depends_on:
       - postgres
     environment:
-      - DB_HOST=postgres
-      - DB_NAME=uca_devices
-      - DB_PASS=pass1234
-      - DB_USER=admin
-      - DB_PORT=5432
+      - DB_HOST=${POSTGRES_HOST}
+      - DB_NAME=${POSTGRES_DATABASE}
+      - DB_PASS=${POSTGRES_PASS}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PORT=${POSTGRES_PORT}
       - PORT=3000
     ports:
       - "443:3000"
@@ -38,7 +38,7 @@ services:
       context: ./tesis_frontend
       dockerfile: Dockerfile
       args:
-        - VITE_BACKEND_URL=http://localhost:80
+        - VITE_BACKEND_URL=${VITE_BACKEND_URL}
     container_name: vue-app
     ports:
       - 8080:8080
@@ -52,7 +52,7 @@ services:
       context: ./nginx
     ports:
       - 80:80
-      - 100:100
+      - 81:81
     depends_on:
       - frontend
       - backend
