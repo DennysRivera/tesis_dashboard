@@ -7,6 +7,28 @@ function valoresEnArreglo(lecturas) {
   return arregloValores;
 }
 
+// Función para colocar el valor de cada lectura en un arreglo
+// con atributo goals (para gráfico de barras o columnas)
+function valoresEnArregloGoals(lecturas, promedio) {
+  let arregloValores = [];
+  lecturas.forEach((lectura) => {
+    arregloValores.push({
+      x: lectura.createdAt.hora,
+      y: lectura.lectura_valor,
+      goals: [
+        {
+          name: "Promedio actual",
+          value: promedio.value,
+          strokeWidth: 5,
+          strokeHeight: 10,
+          strokeColor: "#0b6623",
+        },
+      ],
+    });
+  });
+  return arregloValores;
+}
+
 // Función para colocar la hora de cada lectura en un arreglo
 function tiemposEnArreglo(lecturas) {
   let arregloTiempos = [];
@@ -54,6 +76,7 @@ function lecturasToCsv(lecturas){
 
 export {
   valoresEnArreglo,
+  valoresEnArregloGoals,
   tiemposEnArreglo,
   promedioValores,
   lecturasToCsv

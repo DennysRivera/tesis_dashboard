@@ -3,6 +3,7 @@
 // Más información de configuraciones en
 // https://apexcharts.com/vue-chart-demos/line-charts/
 import { onUpdated, ref } from "vue";
+import { valoresEnArreglo, tiemposEnArreglo, promedioValores } from "./funcionesGraficos";
 
 const props = defineProps({
   dispositivo: Object,
@@ -146,41 +147,6 @@ if (!props.dispositivo.lecturasAnteriores) {
       color: "#ffa500",
     },
   ];
-}
-
-// Función para colocar el valor de cada lectura en un arreglo
-function valoresEnArreglo(lecturas) {
-  let valuesArray = [];
-  lecturas.forEach((lectura) => {
-    valuesArray.push(lectura.lectura_valor);
-  });
-  return valuesArray;
-}
-
-// Función para colocar la hora de cada lectura en un arreglo
-function tiemposEnArreglo(lecturas) {
-  let timesArray = [];
-  lecturas.forEach((lectura) => {
-    timesArray.push(lectura.createdAt.hora);
-  });
-  return timesArray;
-}
-
-// Función para obtener el promedio de los valores de las lecturas
-// y colocarlo en un arreglo
-function promedioValores(lecturas) {
-  let promedio = 0;
-  let promedioArreglo = [];
-  let valores = valoresEnArreglo(lecturas);
-  for (let i = 0; i < valores.length; i++) {
-    promedio += valores[i];
-  }
-  promedio = promedio / valores.length;
-  for (let i = 0; i < valores.length; i++) {
-    promedioArreglo.push(promedio);
-  }
-
-  return promedioArreglo;
 }
 
 // Hook de Vue. Usado para actualizar visualmente el gráfico

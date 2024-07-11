@@ -1,5 +1,6 @@
 <script setup>
 import { onUpdated, ref } from "vue";
+import { valoresEnArreglo, tiemposEnArreglo, promedioValores } from "./funcionesGraficos.js";
 
 const props = defineProps({
   dispositivo: Object,
@@ -129,37 +130,6 @@ if (!props.dispositivo.lecturasAnteriores) {
       zIndex: 0,
     },
   ];
-}
-
-function valoresEnArreglo(lecturas) {
-  let valuesArray = [];
-  lecturas.forEach((lectura) => {
-    valuesArray.push(lectura.lectura_valor);
-  });
-  return valuesArray;
-}
-
-function tiemposEnArreglo(lecturas) {
-  let timesArray = [];
-  lecturas.forEach((lectura) => {
-    timesArray.push(lectura.createdAt.hora);
-  });
-  return timesArray;
-}
-
-function promedioValores(lecturas) {
-  let promedio = 0;
-  let promedioArreglo = [];
-  let valores = valoresEnArreglo(lecturas);
-  for (let i = 0; i < valores.length; i++) {
-    promedio += valores[i];
-  }
-  promedio = promedio / valores.length;
-  for (let i = 0; i < valores.length; i++) {
-    promedioArreglo.push(promedio);
-  }
-
-  return promedioArreglo;
 }
 
 onUpdated(() => {

@@ -55,6 +55,7 @@ const obtenerDatos = async () => {
       // dispositivos recibidos y se convierte la fecha desde UTC
       dispositivos.value = response.data;
       convertirFechaIso(dispositivos.value);
+      removerLecturasVacias(dispositivos.value);
     })
     .catch((error) => {
       // Para una promesa rechazada se muestra una alerta
@@ -84,6 +85,18 @@ const convertirFechaIso = (dispositivos) => {
     });
   });
 };
+
+// Función para remover dispositivos que no tengan
+// lecturas recientes (arreglo vacío) y solo mostrar
+// los gráficos de los que sí tengan, si hay
+const removerLecturasVacias = (dispositivos) => {
+  for(let i = 0; i < dispositivos.length; i++){
+    if(!dispositivos[i].lecturasRecientes.length){
+      dispositivos.splice(i, 1);
+      i--;
+    }
+  }
+}
 
 // Función para crear números aleatorios
 const crearNumerosAleatorios = (cantidadDispositivos) => {
@@ -145,9 +158,10 @@ onMounted(async () => {
       :titulo="dispositivos[n].medicion.medicion_fenomeno"
       :ubicacion="dispositivos[n].ubicacion.ubicacion_nombre"
       :valor="
+        dispositivos[n].lecturasRecientes.length ?
         dispositivos[n].lecturasRecientes[
           dispositivos[n].lecturasRecientes.length - 1
-        ].lectura_valor
+        ].lectura_valor : 'No disponible'
       "
       :unidad="
         dispositivos[n].medicion.medicion_unidad_abreviatura

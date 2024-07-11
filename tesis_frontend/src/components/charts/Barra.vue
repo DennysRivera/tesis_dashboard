@@ -1,6 +1,6 @@
 <script setup>
 import { onUpdated, ref } from "vue";
-import { valoresEnArreglo } from "./funcionesGraficos.js";
+import { valoresEnArreglo, valoresEnArregloGoals, promedioValores } from "./funcionesGraficos.js";
 
 const props = defineProps({
   dispositivo: Object,
@@ -101,7 +101,7 @@ if (!props.dispositivo.lecturasAnteriores) {
   series.value = [
     {
       name: "Mediciones recientes",
-      data: valoresEnArregloGoals(props.dispositivo.lecturasRecientes),
+      data: valoresEnArregloGoals(props.dispositivo.lecturasRecientes, promedio.value),
       color: "#000080",
     },
   ];
@@ -109,66 +109,27 @@ if (!props.dispositivo.lecturasAnteriores) {
   series.value = [
     {
       name: "Mediciones recientes",
-      data: valoresEnArregloGoals(props.dispositivo.lecturasRecientes),
+      data: valoresEnArregloGoals(props.dispositivo.lecturasRecientes, promedio.value),
       color: "#000080",
     },
     {
       name: "Mediciones 24 horas antes",
-      data: valoresEnArregloGoals(props.dispositivo.lecturasAnteriores),
+      data: valoresEnArregloGoals(props.dispositivo.lecturasAnteriores, promedio.value),
       color: "#ffa500",
     },
   ];
-}
-
-function valoresEnArregloGoals(lecturas) {
-  let arregloValores = [];
-  lecturas.forEach((lectura) => {
-    arregloValores.push({
-      x: lectura.createdAt.hora,
-      y: lectura.lectura_valor,
-      goals: [
-        {
-          name: "Promedio actual",
-          value: promedio.value,
-          strokeWidth: 5,
-          strokeHeight: 10,
-          strokeColor: "#0b6623",
-        },
-      ],
-    });
-  });
-  return arregloValores;
-}
-
-function tiemposEnArreglo(lecturas) {
-  let arregloTiempos = [];
-  lecturas.forEach((lectura) => {
-    arregloTiempos.push(lectura.createdAt.hora);
-  });
-  return arregloTiempos;
-}
-
-function promedioValores(lecturas) {
-  let promedio = 0;
-  let valores = valoresEnArreglo(lecturas);
-  for (let i = 0; i < valores.length; i++) {
-    promedio += valores[i];
-  }
-  promedio = promedio / valores.length;
-
-  return promedio;
 }
 
 onUpdated(() => {
   ApexCharts.exec("realtime", "updateSeries", [
     {
       name: "Mediciones recientes",
-      data: valoresEnArregloGoals(props.dispositivo.lecturasRecientes),
+      data: valoresEnArregloGoals(props.dispositivo.lecturasRecientes, promedio.value),
       color: "#000080",
     },
     {
       name: "Mediciones 24 horas antes",
-      data: valoresEnArregloGoals(props.dispositivo.lecturasAnteriores),
+      data: valoresEnArregloGoals(props.dispositivo.lecturasAnteriores, promedio.value),
       color: "#ffa500",
     },
   ]);
