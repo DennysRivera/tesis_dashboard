@@ -30,11 +30,13 @@ const port = process.env.PORT || 3000
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(morgan("json"));
+// Logger con mensajes en consola
+app.use(morgan(morganFormato));
 
-app.use(morgan(morganFormato, {
+// Logger con mensajes en archivo
+/*app.use(morgan(morganFormato, {
     stream: fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" })
-}));
+}));*/
 
 app.use(helmet());
 
