@@ -18,7 +18,7 @@ function valoresEnArregloGoals(lecturas, promedio) {
       goals: [
         {
           name: "Promedio actual",
-          value: promedio.value,
+          value: promedio,
           strokeWidth: 5,
           strokeHeight: 10,
           strokeColor: "#0b6623",
@@ -55,6 +55,16 @@ function promedioValores(lecturas) {
   return promedioArreglo;
 }
 
+function promedioValoresIndividual(lecturas) {
+  let promedio = 0;
+  let valores = valoresEnArreglo(lecturas);
+  for (let i = 0; i < valores.length; i++) {
+    promedio += valores[i];
+  }
+  promedio = promedio / valores.length;
+  return promedio;
+}
+
 // Funcion para creación de CSV a partir de lecturas de la tabla
 // y su descarga
 function lecturasToCsv(lecturas){
@@ -79,5 +89,6 @@ export {
   valoresEnArregloGoals,
   tiemposEnArreglo,
   promedioValores,
+  promedioValoresIndividual,
   lecturasToCsv
 }

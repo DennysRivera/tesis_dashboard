@@ -1,13 +1,13 @@
 <script setup>
 import { onUpdated, ref } from "vue";
-import { valoresEnArreglo, valoresEnArregloGoals, promedioValores } from "./funcionesGraficos.js";
+import { valoresEnArregloGoals, promedioValoresIndividual } from "./funcionesGraficos.js";
 
 const props = defineProps({
   dispositivo: Object,
 });
 
 const promedio = ref(0);
-promedio.value = promedioValores(props.dispositivo.lecturasRecientes);
+promedio.value = promedioValoresIndividual(props.dispositivo.lecturasRecientes);
 
 const chartOptions = ref({
   chart: {

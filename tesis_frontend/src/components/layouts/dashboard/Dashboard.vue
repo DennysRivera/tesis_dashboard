@@ -50,7 +50,6 @@ const obtenerDatos = async () => {
       },
     })
     .then((response) => {
-      console.log(response);
       // Para una promesa resuelta se almacenan los
       // dispositivos recibidos y se convierte la fecha desde UTC
       dispositivos.value = response.data;

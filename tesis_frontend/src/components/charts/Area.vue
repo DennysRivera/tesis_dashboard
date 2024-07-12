@@ -77,6 +77,7 @@ const chartOptions = ref({
         color: "black",
       },
     },
+    decimalsInFloat: 2
   },
   tooltip: {
     y: {
