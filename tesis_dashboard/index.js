@@ -45,19 +45,8 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Activación CORS
-const whitelist = ["https://dei.uca.edu.sv", "https://dei2.uca.edu.sv"];
-const corsOptions = {
-    origin: function (origin, callback) {
-        if (whitelist.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Origen no permitido'));
-        }
-    },
-    methods: "GET,POST"
-}
-app.use(cors(corsOptions));
+// Activación CORS simple
+app.use(cors());
 
 // Se inicia la conexión a la BD
 // y se imprime un error si falla
