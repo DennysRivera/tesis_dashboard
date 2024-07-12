@@ -36,8 +36,11 @@ const fechas = reactive({
   fin: null,
 });
 
+const busquedaActivada = ref(true);
+
 // Función para realizar una petición
 const obtenerDatosFecha = () => {
+  desactivarBusqueda();
   // Si no se ingresa un fecha final para el rango (Hasta:),
   // se entenderá que se quiere lecturas de un solo día (Desde:)
   let fechaFin = new Date(fechas.fin || fechas.inicio);
@@ -142,6 +145,16 @@ function cambiarPorPagina(cantidad) {
   // Se llena las lecturas con la nueva cantidad de lecturas por cada página
   llenarLecturasMostrar(0);
 }
+
+function desactivarBusqueda(){
+  console.log("desactivar")
+  busquedaActivada.value = false;
+  console.log(busquedaActivada.value)
+  setTimeout(() => {
+    busquedaActivada.value = true
+  }, 60000);
+  console.log(busquedaActivada.value)
+}
 </script>
 
 <template>
@@ -212,10 +225,11 @@ function cambiarPorPagina(cantidad) {
           <button
             type="submit"
             class="btn-buscar pantone"
-            :disabled="!fechas.inicio"
+            :disabled="!fechas.inicio || !busquedaActivada"
           >
             Buscar
           </button>
+          <p v-if="!busquedaActivada" style="color: red; font-size: 0.7rem; margin-bottom: 5px;">1 minuto restante para nueva búsqueda</p>
         </BForm>
       </div>
       <div class="botones-porpagina">
