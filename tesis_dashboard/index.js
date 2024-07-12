@@ -43,19 +43,30 @@ app.use(helmet());
 // Middleware proporcionado por express para
 // la lectura del cuerpo de una petición en formato JSON
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
-// Activación CORS simple
-app.use(cors());
+// Activación CORS
+const whitelist = ["https://dei.uca.edu.sv", "https://dei2.uca.edu.sv"];
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Origen no permitido'));
+        }
+    },
+    methods: "GET,POST"
+}
+app.use(cors(corsOptions));
 
 // Se inicia la conexión a la BD
 // y se imprime un error si falla
 try {
     await db.authenticate();
     await db.sync();
-    console.log("DB connected");
+    console.log("Base de datos conectada");
 } catch (error) {
-    console.log(error);
+    console.log("Error al conectar a la base de datos:\n", error);
 }
 
 // Rutas que estarán disponibles en la aplicación
@@ -67,5 +78,5 @@ app.use("", router);
 // del puerto asignado en port
 // Se imprime un mensaje para saber que funcionó
 app.listen(port, () => {
-    console.log("Connected");
+    console.log("Aplicación corriendo");
 })

@@ -32,7 +32,7 @@ const obtenerDatos = async (req, res) => {
             order: ["dispositivo_id"]
         });
 
-        if (!dispositivos) {
+        if (dispositivos.length <= 0) {
             throw new ErrorConCodigo("No se encontraron dispositivos", 404);
         }
 
