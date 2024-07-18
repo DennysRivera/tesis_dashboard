@@ -1,6 +1,7 @@
 import { createMemoryHistory, createRouter } from "vue-router";
 
 import Dashboard from "./components/layouts/dashboard/Dashboard.vue";
+import VistaGeneral from "./components/layouts/dashboard/VistaGeneral.vue";
 import MasInformacion from "./components/layouts/chartDetails/MasInformacion.vue";
 import GraficoDetallado from "./components/layouts/chartDetails/GraficoDetallado.vue";
 import Tabla from "./components/charts/Tabla.vue";
@@ -9,7 +10,7 @@ const routes = [
     {
         path: "/",
         name: "dashboard",
-        component: Dashboard
+        component: VistaGeneral
     },
     {
         path: "/informacion/:dispositivoId",

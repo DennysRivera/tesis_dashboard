@@ -14,7 +14,7 @@ const props = defineProps(["titulo", "ubicacion", "valor", "unidad"]);
   </BCard>
 </template>
 
-<style scoped>
+<style>
 .tarjeta-informativa {
   max-width: 20%;
   max-height: 20%;

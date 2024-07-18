@@ -4,6 +4,8 @@ import { onMounted, ref, shallowRef } from "vue";
 // Importación de instancia de Axios
 import { axiosCliente } from "@/config/axios.js";
 
+import { dispositivosStore } from "@/store/store.js";
+
 // Importación de otros componentes visuales
 import Alerta from "@/components/misc/Alerta.vue";
 import TarjetaInformativa from "@/components/layouts/dashboard/TarjetaInformativa.vue";
@@ -52,9 +54,13 @@ const obtenerDatos = async () => {
     .then((response) => {
       // Para una promesa resuelta se almacenan los
       // dispositivos recibidos y se convierte la fecha desde UTC
-      dispositivos.value = response.data;
+      dispositivos.value = [...response.data];
       convertirFechaIso(dispositivos.value);
       removerLecturasVacias(dispositivos.value);
+
+      dispositivosStore.todosDispositivos = response.data;
+      convertirFechaIso(dispositivosStore.todosDispositivos);
+      console.log(dispositivosStore.todosDispositivos)
     })
     .catch((error) => {
       // Para una promesa rechazada se muestra una alerta
@@ -146,7 +152,7 @@ onMounted(async () => {
   <div id="tarjetas-informativas-div">
     <!-- La primera tarjeta es fija para la cantidad de dispositivos disponibles -->
     <TarjetaInformativa
-      titulo="Medidores registrados"
+      titulo="Medidores activos"
       :valor="dispositivos.length"
     />
 
