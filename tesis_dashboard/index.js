@@ -46,7 +46,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Activación CORS simple
-app.use(cors());
+let whitelist = [process.env.GATEWAY_URL, process.env.CLIENT_URL];
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Fuera de política CORS'));
+        }
+    },
+    methods: "GET,PUT"
+}
+app.use(cors(corsOptions));
 
 // Se inicia la conexión a la BD
 // y se imprime un error si falla

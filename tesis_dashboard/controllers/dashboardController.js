@@ -154,6 +154,10 @@ const obtenerDatosDispositivo = async (req, res, next) => {
             raw: true
         });
 
+        if (!lecturasRecientes.length) {
+            throw new ErrorConCodigo("No hay lecturas disponibles", 404);
+        }
+
         // Se invierte el orden del arreglo
         // para que las lecturas más antiguas
         // estén al inicio
