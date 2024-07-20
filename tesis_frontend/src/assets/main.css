@@ -43,7 +43,7 @@ header {
 }
 
 footer {
-  height: 10vh;
+  min-height: 10vh;
   width: 100%;
   background-color: #00449e;
 }
@@ -89,19 +89,19 @@ footer .titulo-uca {
 }
 
 @media (min-height: 845px) {
-  footer {
+  /*footer {
     position: fixed;
     bottom: 0;
-  }
+  }*/
 
   #app {
     margin: 20px auto 15vh auto;
   }
 }
 
-@media (height >= 1338px) {
+/*@media (height >= 1338px) {
   footer {
     position: fixed;
     bottom: 0;
   }
-}
+}*/

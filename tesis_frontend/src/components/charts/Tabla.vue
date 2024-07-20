@@ -45,12 +45,6 @@ const obtenerDatosFecha = () => {
   // se entenderá que se quiere lecturas de un solo día (Desde:)
   let fechaFin = new Date(fechas.fin || fechas.inicio);
 
-  // Se aumenta en 1 día la fecha final por cuestiones del backend
-  fechaFin.setDate(fechaFin.getDate() + 1);
-
-  // Se convierte la fecha a formato ISO y se extrae la fecha (aaaa-mm-dd)
-  fechaFin = fechaFin.toISOString().slice(0, 10);
-
   axiosCliente
     .get(`${route.params.dispositivoId}/tabla`, {
       // Las fechas se envían como query string
@@ -146,14 +140,11 @@ function cambiarPorPagina(cantidad) {
   llenarLecturasMostrar(0);
 }
 
-function desactivarBusqueda(){
-  console.log("desactivar")
+function desactivarBusqueda() {
   busquedaActivada.value = false;
-  console.log(busquedaActivada.value)
   setTimeout(() => {
-    busquedaActivada.value = true
+    busquedaActivada.value = true;
   }, 60000);
-  console.log(busquedaActivada.value)
 }
 </script>
 
@@ -162,7 +153,7 @@ function desactivarBusqueda(){
   <div id="tabla-container">
     <div id="tabla-paginacion">
       <div id="tabla">
-        <BTableSimple>
+        <BTableSimple hover>
           <BThead>
             <BTr>
               <BTh>Fecha</BTh>
@@ -225,11 +216,12 @@ function desactivarBusqueda(){
           <button
             type="submit"
             class="btn-buscar pantone"
+            :class="{ cargando: !busquedaActivada }"
             :disabled="!fechas.inicio || !busquedaActivada"
           >
-            Buscar
+            <span id="btn-buscar-progreso"></span>
+            <span id="btn-buscar-texto">Buscar</span>
           </button>
-          <p v-if="!busquedaActivada" style="color: red; font-size: 0.7rem; margin-bottom: 5px;">1 minuto restante para nueva búsqueda</p>
         </BForm>
       </div>
       <div class="botones-porpagina">
@@ -255,12 +247,27 @@ function desactivarBusqueda(){
       >
         Descargar historial
       </button>
-      <p id="cantidad-registros">{{ lecturas.length }} registros</p>
+      <p id="cantidad-registros">Total: {{ lecturas.length }}</p>
     </div>
   </div>
 </template>
 
 <style scoped>
+button.pantone {
+  border: 1px solid #00459e;
+}
+
+button.pantone:hover {
+  background-color: transparent;
+  border: 1px solid #00459e;
+  color: #00459e;
+}
+
+button.pantone:disabled:hover {
+  background-color: #00459ecc;
+  color: white;
+}
+
 #tabla-container {
   height: 100%;
   display: flex;
@@ -282,6 +289,10 @@ function desactivarBusqueda(){
   overflow: auto;
 }
 
+tr:hover{
+  background-color: red;
+}
+
 #calendario p {
   margin: 0;
 }
@@ -290,6 +301,28 @@ function desactivarBusqueda(){
   display: block;
   width: 80%;
   margin: 1rem auto;
+  position: relative;
+  overflow: hidden;
+}
+
+#btn-buscar-progreso {
+  position: absolute;
+  content: "";
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background-color: #00459e;
+}
+
+.btn-buscar.cargando #btn-buscar-progreso{
+  width: 100%;
+  transition: width 60s linear;
+}
+
+#btn-buscar-texto{
+  position: relative;
+  z-index: 2;
 }
 
 .btn-descargar {
@@ -311,7 +344,6 @@ function desactivarBusqueda(){
 .btn-pagina,
 .btn-descargar {
   padding: 10px;
-  border: none;
   border-radius: 10px;
   color: white;
 }
@@ -330,10 +362,6 @@ function desactivarBusqueda(){
   margin: 5px;
 }
 
-button.pantone {
-  border: 1px solid #00459e;
-}
-
 .btn-pagina:disabled,
 .btn-buscar:disabled {
   background-color: #00459ecc;
@@ -341,12 +369,6 @@ button.pantone {
 
 .botones-porpagina button:disabled,
 .pagina-actual:disabled {
-  background-color: transparent;
-  border: 1px solid #00459e;
-  color: #00459e;
-}
-
-button.pantone:hover {
   background-color: transparent;
   border: 1px solid #00459e;
   color: #00459e;

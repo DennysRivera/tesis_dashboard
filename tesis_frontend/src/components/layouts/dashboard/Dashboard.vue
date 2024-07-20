@@ -4,8 +4,6 @@ import { onMounted, ref, shallowRef } from "vue";
 // Importación de instancia de Axios
 import { axiosCliente } from "@/config/axios.js";
 
-import { dispositivosStore } from "@/store/store.js";
-
 // Importación de otros componentes visuales
 import Alerta from "@/components/misc/Alerta.vue";
 import TarjetaInformativa from "@/components/layouts/dashboard/TarjetaInformativa.vue";
@@ -40,27 +38,14 @@ let graficosAleatoriosNumeros = [];
 
 // Función para obtener los datos de cada dispositivo desde la API
 const obtenerDatos = async () => {
-  let fechaInicio = new Date(Date.now());
-  fechaInicio.setDate(fechaInicio.getDate() - 1);
-  fechaInicio = fechaInicio.toISOString().slice(0, 10);
-
   // Petición para el endpoint /dashboard
   await axiosCliente
-    .get("dashboard", {
-      params: {
-        fechaInicio,
-      },
-    })
+    .get("dashboard")
     .then((response) => {
       // Para una promesa resuelta se almacenan los
       // dispositivos recibidos y se convierte la fecha desde UTC
-      dispositivos.value = [...response.data];
+      dispositivos.value = response.data;
       convertirFechaIso(dispositivos.value);
-      removerLecturasVacias(dispositivos.value);
-
-      dispositivosStore.todosDispositivos = response.data;
-      convertirFechaIso(dispositivosStore.todosDispositivos);
-      console.log(dispositivosStore.todosDispositivos)
     })
     .catch((error) => {
       // Para una promesa rechazada se muestra una alerta
@@ -90,18 +75,6 @@ const convertirFechaIso = (dispositivos) => {
     });
   });
 };
-
-// Función para remover dispositivos que no tengan
-// lecturas recientes (arreglo vacío) y solo mostrar
-// los gráficos de los que sí tengan, si hay
-const removerLecturasVacias = (dispositivos) => {
-  for(let i = 0; i < dispositivos.length; i++){
-    if(!dispositivos[i].lecturasRecientes.length){
-      dispositivos.splice(i, 1);
-      i--;
-    }
-  }
-}
 
 // Función para crear números aleatorios
 const crearNumerosAleatorios = (cantidadDispositivos) => {
@@ -152,7 +125,7 @@ onMounted(async () => {
   <div id="tarjetas-informativas-div">
     <!-- La primera tarjeta es fija para la cantidad de dispositivos disponibles -->
     <TarjetaInformativa
-      titulo="Medidores activos"
+      titulo="Medidores registrados"
       :valor="dispositivos.length"
     />
 
@@ -163,10 +136,9 @@ onMounted(async () => {
       :titulo="dispositivos[n].medicion.medicion_fenomeno"
       :ubicacion="dispositivos[n].ubicacion.ubicacion_nombre"
       :valor="
-        dispositivos[n].lecturasRecientes.length ?
         dispositivos[n].lecturasRecientes[
           dispositivos[n].lecturasRecientes.length - 1
-        ].lectura_valor : 'No disponible'
+        ].lectura_valor
       "
       :unidad="
         dispositivos[n].medicion.medicion_unidad_abreviatura
