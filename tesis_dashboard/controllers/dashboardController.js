@@ -10,9 +10,6 @@ import { ErrorConCodigo } from "../utils/errorConCodigo.js";
 // Función para obtener las lecturas recientes de todos los dispositivos
 const obtenerDatos = async (req, res) => {
     try {
-        // Fecha enviada desde el frontend
-        const { fechaInicio } = req.query;
-
         // Se buscan todos los dispositivos existentes registrados
         const dispositivos = await Dispositivo.findAll({
             // JOIN con las tablas de Ubicaciones y Mediciones
@@ -29,79 +26,32 @@ const obtenerDatos = async (req, res) => {
             }],
 
             // Se ordenarán en orden alfabético
-            order: ["dispositivo_id"]
+            order: ["dispositivo_id"],
         });
 
         if (dispositivos.length <= 0) {
             throw new ErrorConCodigo("No se encontraron dispositivos", 404);
         }
 
-        // Se consultarán a partir de una fecha de inicio
-        // para evitar datos innecesarios
-        // Solo se buscan los más recientes
-        const lecturas = await Lectura.findAll({
-            where: {
-                createdAt: {
-                    [Op.gte]: fechaInicio
-                }
-            },
-            attributes: {
-                exclude: ["updatedAt"]
-            },
-            // Se agrupan por id del dispositivo
-            group: [
-                ["dispositivo_id"],
-                ["lectura_id"]
-            ],
-            // Se ordenan del más reciente al más antiguo
-            order: [
-                ["dispositivo_id"],
-                ["createdAt", "DESC"]
-            ],
-            // Opción para no crear instancia del modelo
-            raw: true
-        });
-
-        // Variables a usar para obtener las lecturas deseadas
-        let lecturasMaximas;
-        let lecturasRecientes;
-
-        // Se recorrerá un arreglo con todos los dispositivos encontrados
-        dispositivos.forEach((dispositivo) => {
-            // Cada dispositivo tendrá un límite de 10 lecturas, las más recientes
-            // que se almacenarán en un arreglo
-            lecturasMaximas = 10;
-            lecturasRecientes = [];
-
-            let i = 0;
-
-            // Bucle para obtener las 10 lecturas más recientes,
-            // o todas las exiswtentes si son menos de 10
-            while (lecturasMaximas > 0) {
-                if (i >= lecturas.length) {
-                    break;
-                }
-
-                // Como todas lecturas están en un solo arreglo,
-                // se verifica si le pertenecen al dispositivo actual en el forEach
-                if (lecturas[i].dispositivo_id === dispositivo.dispositivo_id) {
-                    // Se inserta la lectura en el arreglo
-                    // y se disminuye el número de elementos que puede aceptar
-                    lecturasRecientes.push(lecturas[i]);
-                    lecturasMaximas--;
-                }
-                i++;
-            }
-
-            lecturasRecientes.reverse();
-
-            // Se agrega el arreglo de las lecturas recientes
-            // al dispositivo correspondiente
+        for (const dispositivo of dispositivos) {
+            let lecturasRecientes = await Lectura.findAll({
+                where: {
+                    dispositivo_id: dispositivo.dispositivo_id
+                },
+                attributes: {
+                    exclude: ["updatedAt"]
+                },
+                order: ["createdAt"],
+                limit: 10,
+                raw: true
+            });
             dispositivo.dataValues.lecturasRecientes = lecturasRecientes;
-        });
+            console.log(dispositivo.lecturasRecientes)
+        }
 
         // Como respuesta se envía un arreglo con los dispositivos y
         // sus lecturas en formato JSON
+        console.log(dispositivos);
         return res.json(dispositivos);
     } catch (error) {
         if (error.status) {
