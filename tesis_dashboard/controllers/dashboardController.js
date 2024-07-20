@@ -172,13 +172,19 @@ const lecturasEnTabla = async (req, res) => {
         const dispositivo_id = req.params.id;
         const { fechaInicio, fechaFin } = req.query;
 
+        let fechaFinModificada = new Date(fechaFin);
+        // Se aumenta en 1 día la fecha final para la comparación en el query
+        fechaFinModificada.setDate(fechaFinModificada.getDate() + 1);
+        // Se convierte la fecha a formato ISO y se extrae la fecha (aaaa-mm-dd)
+        fechaFinModificada = fechaFinModificada.toISOString().slice(0, 10);
+
         const lecturas = await Lectura.findAll({
             where: {
                 dispositivo_id,
                 createdAt: {
                     [Op.and]: {
                         [Op.gte]: fechaInicio,
-                        [Op.lt]: fechaFin
+                        [Op.lt]: fechaFinModificada
                     }
                 }
             },
