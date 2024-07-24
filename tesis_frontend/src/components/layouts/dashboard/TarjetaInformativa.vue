@@ -16,9 +16,7 @@ const props = defineProps(["titulo", "ubicacion", "valor", "unidad"]);
 
 <style>
 .tarjeta-informativa {
-  max-width: 20%;
-  max-height: 20%;
-  min-width: 15rem;
+  width: 15rem;
   min-height: 1rem;
   margin: 15px auto;
   box-shadow: 1px 3px rgb(182, 171, 171, 0.7);

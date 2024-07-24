@@ -170,7 +170,7 @@ onMounted(async () => {
 <style scoped>
 #tarjetas-informativas-div {
   width: 90%;
-  margin: 0 auto;
+  margin: 0 auto 10px auto;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;

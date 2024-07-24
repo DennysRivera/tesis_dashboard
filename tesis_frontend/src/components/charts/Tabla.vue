@@ -12,6 +12,9 @@ const route = useRoute();
 // Arreglo con todas las lecturas encontradas en la tabla de datos
 const lecturas = ref([]);
 
+// Arreglo con lecturas filtradas por valor a partir del arreglo principal
+const lecturasFiltradasPorValor = ref([]);
+
 // Variable booleana para mostrar una alerta en caso de error
 // y un mensaje de error personalizado recibido de la API, si envía uno
 // En caso contrario se utiliza uno general
@@ -36,6 +39,12 @@ const fechas = reactive({
   fin: null,
 });
 
+// Rango de valores para filtrar las lecturas recibidas
+const valores = reactive({
+  minimo: null,
+  maximo: null,
+});
+
 const busquedaActivada = ref(true);
 
 // Función para realizar una petición
@@ -57,9 +66,11 @@ const obtenerDatosFecha = () => {
       lecturas.value = response.data;
       // Se separa la fecha de la hora para cada lectura
       convertirFechaIso(lecturas.value);
-
+      lecturasFiltradasPorValor.value = lecturas.value;
       // Se calcula el total de páginas para la paginación
-      totalPaginas.value = Math.ceil(lecturas.value.length / porPagina.value);
+      totalPaginas.value = Math.ceil(
+        lecturasFiltradasPorValor.value.length / porPagina.value
+      );
 
       // Se llena un arreglo con las lecturas a mostrar por cada página
       llenarLecturasMostrar(0);
@@ -109,13 +120,13 @@ function llenarLecturasMostrar(cambiarPagina) {
   // el número de elementos en el arreglo
   let max =
     paginaActual.value * porPagina.value + porPagina.value >
-    lecturas.value.length
-      ? lecturas.value.length
+    lecturasFiltradasPorValor.value.length
+      ? lecturasFiltradasPorValor.value.length
       : paginaActual.value * porPagina.value + porPagina.value;
 
   // Las lecturas por página se extraen del arreglo con todas las lecturas
   for (let i = min; i < max; i++) {
-    arreglo.push(lecturas.value[i]);
+    arreglo.push(lecturasFiltradasPorValor.value[i]);
   }
   lecturasAMostrar.value = arreglo;
 }
@@ -134,17 +145,58 @@ function cambiarPorPagina(cantidad) {
   porPagina.value = cantidad;
 
   // Se calcula el nuevo total de páginas
-  totalPaginas.value = Math.ceil(lecturas.value.length / porPagina.value);
+  totalPaginas.value = Math.ceil(
+    lecturasFiltradasPorValor.value.length / porPagina.value
+  );
 
   // Se llena las lecturas con la nueva cantidad de lecturas por cada página
   llenarLecturasMostrar(0);
 }
 
+// Función timer para limitar peticiones a 1 por minuto
 function desactivarBusqueda() {
   busquedaActivada.value = false;
   setTimeout(() => {
     busquedaActivada.value = true;
   }, 60000);
+}
+
+// Función para filtrar los valores según un rango
+function filtrarPorValores() {
+
+  // Condiciones según si hay un valor mínimo y máximo
+  // o si falta alguno o ambos
+  if (!valores.minimo && valores.maximo) {
+    // Se llena un arreglo con los valores filtrados
+    lecturasFiltradasPorValor.value = lecturas.value.filter(
+      (lectura) => lectura.lectura_valor <= valores.maximo
+    );
+  } else if (!valores.maximo && valores.minimo) {
+    lecturasFiltradasPorValor.value = lecturas.value.filter(
+      (lectura) => lectura.lectura_valor >= valores.minimo
+    );
+  } else if (!valores.minimo && !valores.maximo) {
+    // Si no hay valores en el rango, se utiliza el arreglo principal
+    lecturasFiltradasPorValor.value = lecturas.value;
+  } else {
+    lecturasFiltradasPorValor.value = lecturas.value.filter(
+      (lectura) =>
+        lectura.lectura_valor >= valores.minimo &&
+        lectura.lectura_valor <= valores.maximo
+    );
+  }
+
+  // Se actualiza la paginación
+  totalPaginas.value = Math.ceil(
+    lecturasFiltradasPorValor.value.length / porPagina.value
+  );
+
+  llenarLecturasMostrar(0);
+}
+
+function cambiarSigno() {
+  let span = document.querySelector("#btn-filtrar-valor span");
+  span.textContent = span.textContent === "+" ? "-" : "+";
 }
 </script>
 
@@ -224,6 +276,26 @@ function desactivarBusqueda() {
           </button>
         </BForm>
       </div>
+      <div id="filtro-valores" v-if="lecturas.length">
+        <button
+          id="btn-filtrar-valor"
+          v-b-toggle.collapse
+          @click="cambiarSigno"
+        >
+          Filtrar por valor <span>+</span>
+        </button>
+        <BCollapse id="collapse">
+          <BForm @submit="filtrarPorValores">
+            <label
+              >Mínimo:<BFormInput type="number" v-model="valores.minimo"
+            /></label>
+            <label
+              >Máxmo:<BFormInput type="number" v-model="valores.maximo"
+            /></label>
+            <button type="submit" class="btn-buscar pantone">Filtrar</button>
+          </BForm>
+        </BCollapse>
+      </div>
       <div class="botones-porpagina">
         <p>Número de filas por página:</p>
         <BButtonGroup
@@ -242,12 +314,14 @@ function desactivarBusqueda() {
       </div>
       <button
         v-if="lecturas.length"
-        @click="lecturasToCsv(lecturas)"
+        @click="lecturasToCsv(lecturasFiltradasPorValor)"
         class="btn-descargar pantone"
       >
-        Descargar historial
+        Descargar datos
       </button>
-      <p id="cantidad-registros">Total: {{ lecturas.length }}</p>
+      <p id="cantidad-registros">
+        Total: {{ lecturasFiltradasPorValor.length }}
+      </p>
     </div>
   </div>
 </template>
@@ -284,12 +358,12 @@ button.pantone:disabled:hover {
 
 #tabla {
   width: 90%;
-  min-height: 70vh;
+  min-height: 40vh;
   max-height: 70vh;
   overflow: auto;
 }
 
-tr:hover{
+tr:hover {
   background-color: red;
 }
 
@@ -315,14 +389,28 @@ tr:hover{
   background-color: #00459e;
 }
 
-.btn-buscar.cargando #btn-buscar-progreso{
+.btn-buscar.cargando #btn-buscar-progreso {
   width: 100%;
   transition: width 60s linear;
 }
 
-#btn-buscar-texto{
+#btn-buscar-texto {
   position: relative;
   z-index: 2;
+}
+
+#filtro-valores {
+  margin-bottom: 1rem;
+}
+
+#btn-filtrar-valor {
+  width: 100%;
+  margin: inherit;
+  display: flex;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  border-bottom: 2px solid #bdbdbd;
 }
 
 .btn-descargar {
@@ -355,7 +443,7 @@ tr:hover{
 }
 
 .paginacion {
-  margin: 0 auto;
+  margin: 5px auto;
 }
 
 .btn-pagina {
@@ -418,6 +506,13 @@ tr:hover{
 
   .alerta {
     left: 15%;
+  }
+}
+
+@media (min-width: 501px){
+  .lateral{
+    max-height: 75vh;
+    overflow: auto;
   }
 }
 
