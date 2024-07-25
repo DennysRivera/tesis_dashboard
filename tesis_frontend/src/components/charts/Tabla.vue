@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { axiosCliente } from "@/config/axios.js";
 import { lecturasToCsv } from "./funcionesGraficos.js";
@@ -8,6 +8,8 @@ import { lecturasToCsv } from "./funcionesGraficos.js";
 
 // useRoute permite usar el atributo params de la URL
 const route = useRoute();
+
+const dispositivo = ref({});
 
 // Arreglo con todas las lecturas encontradas en la tabla de datos
 const lecturas = ref([]);
@@ -47,10 +49,27 @@ const valores = reactive({
 
 const busquedaActivada = ref(true);
 
+const obtenerDispositivo = () => {
+  axiosCliente
+    .get(`${route.params.dispositivoId}/informacion`)
+    .then((response) => {
+      dispositivo.value = response.data;
+      // Se separa la fecha y la hora de creación del dispositivo
+      fechaCreacionDispositivo(dispositivo.value);
+    })
+    .catch((error) => {
+      // Si se recibe un mensaje de error personalizado, se muestra en una alerta
+      if (error.response.status >= 400 && error.response.status < 500) {
+        mensajeAlerta.value = error.response.data;
+      }
+      mostrarAlerta.value = true;
+    });
+};
+
 // Función para realizar una petición
 const obtenerDatosFecha = () => {
   desactivarBusqueda();
-  // Si no se ingresa un fecha final para el rango (Hasta:),
+  // Si no se ingresa una fecha final para el rango (Hasta:),
   // se entenderá que se quiere lecturas de un solo día (Desde:)
   let fechaFin = new Date(fechas.fin || fechas.inicio);
 
@@ -64,6 +83,7 @@ const obtenerDatosFecha = () => {
     })
     .then((response) => {
       lecturas.value = response.data;
+
       // Se separa la fecha de la hora para cada lectura
       convertirFechaIso(lecturas.value);
       lecturasFiltradasPorValor.value = lecturas.value;
@@ -97,6 +117,17 @@ function convertirFechaIso(lecturas) {
       fecha: new Date(lectura.createdAt).toLocaleDateString("es-SV"),
     };
   });
+}
+
+function fechaCreacionDispositivo(dispositivo) {
+  dispositivo.createdAt = {
+    hora: new Date(dispositivo.createdAt).toLocaleTimeString(undefined, {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    fecha: dispositivo.createdAt.slice(0, 10),
+  };
 }
 
 // Función para llenar un arreglo con las lecturas para mostrar en cada página
@@ -162,8 +193,7 @@ function desactivarBusqueda() {
 }
 
 // Función para filtrar los valores según un rango
-function filtrarPorValores() {
-
+const filtrarPorValores = computed(() => {
   // Condiciones según si hay un valor mínimo y máximo
   // o si falta alguno o ambos
   if (!valores.minimo && valores.maximo) {
@@ -192,12 +222,38 @@ function filtrarPorValores() {
   );
 
   llenarLecturasMostrar(0);
-}
+});
 
 function cambiarSigno() {
   let span = document.querySelector("#btn-filtrar-valor span");
   span.textContent = span.textContent === "+" ? "-" : "+";
 }
+
+// Función para asignar la fecha a partir de cual
+// se puede buscar lecturas del dispositivo
+const fechaMinimaDisponible = computed(() => {
+  return dispositivo.value.createdAt
+    ? dispositivo.value.createdAt.fecha
+    : "2024-01-01";
+});
+
+// Función para asignar la fecha hasta la cual
+// se puede buscar lecturas del dispositivo
+// (El día actual por default)
+const fechaMaximaDisponible = computed(() => {
+  let fechaActual = new Date(Date.now());
+  fechaActual = `${fechaActual.getFullYear()}-${
+    fechaActual.getMonth() < 9 ? "0" : ""
+  }${fechaActual.getMonth() + 1}-${
+    fechaActual.getDate() < 10 ? "0" : ""
+  }${fechaActual.getDate()}`;
+
+  return fechaActual;
+});
+
+onMounted(() => {
+  obtenerDispositivo();
+});
 </script>
 
 <template>
@@ -262,9 +318,19 @@ function cambiarSigno() {
       <div id="calendario">
         <BForm @submit="obtenerDatosFecha">
           <p>Desde:</p>
-          <BFormInput type="date" v-model="fechas.inicio" />
+          <BFormInput
+            type="date"
+            :min="fechaMinimaDisponible"
+            :max="fechas.fin || fechaMaximaDisponible"
+            v-model="fechas.inicio"
+          />
           <p>Hasta:</p>
-          <BFormInput type="date" v-model="fechas.fin" />
+          <BFormInput
+            type="date"
+            :min="fechas.inicio || fechaMinimaDisponible"
+            :max="fechaMaximaDisponible"
+            v-model="fechas.fin"
+          />
           <button
             type="submit"
             class="btn-buscar pantone"
@@ -282,7 +348,7 @@ function cambiarSigno() {
           v-b-toggle.collapse
           @click="cambiarSigno"
         >
-          Filtrar por valor <span>+</span>
+          Filtrar por valores <span>+</span>
         </button>
         <BCollapse id="collapse">
           <BForm @submit="filtrarPorValores">
@@ -290,9 +356,18 @@ function cambiarSigno() {
               >Mínimo:<BFormInput type="number" v-model="valores.minimo"
             /></label>
             <label
-              >Máxmo:<BFormInput type="number" v-model="valores.maximo"
+              >Máximo:<BFormInput type="number" v-model="valores.maximo"
             /></label>
-            <button type="submit" class="btn-buscar pantone">Filtrar</button>
+            <button
+              type="button"
+              class="btn-buscar pantone"
+              @click="
+                valores.minimo = null;
+                valores.maximo = null;
+              "
+            >
+              Limpiar filtro
+            </button>
           </BForm>
         </BCollapse>
       </div>
@@ -324,6 +399,17 @@ function cambiarSigno() {
       </p>
     </div>
   </div>
+  <div id="informacion-medida">
+    <h2>Información sobre esta medición</h2>
+    <h3>
+      {{ dispositivo.medicion ? dispositivo.medicion.medicion_fenomeno : "" }}
+    </h3>
+    <p>
+      {{
+        dispositivo.medicion ? dispositivo.medicion.medicion_descripcion : ""
+      }}
+    </p>
+  </div>
 </template>
 
 <style scoped>
@@ -351,6 +437,7 @@ button.pantone:disabled:hover {
 #tabla-paginacion {
   width: 100%;
   height: 100%;
+  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -509,8 +596,8 @@ tr:hover {
   }
 }
 
-@media (min-width: 501px){
-  .lateral{
+@media (min-width: 501px) {
+  .lateral {
     max-height: 75vh;
     overflow: auto;
   }

@@ -82,7 +82,6 @@ const obtenerDatosDispositivo = async (req, res, next) => {
                     exclude: ["medicion_id", "createdAt", "updatedAt"]
                 }
             }],
-            order: ["dispositivo_id"]
         });
 
         if (!dispositivo) {
@@ -158,6 +157,40 @@ const obtenerDatosDispositivo = async (req, res, next) => {
     }
 }
 
+// Función para enviar solamente la información del dispositivo
+const infoDispositivo = async (req, res) => {
+    try {
+        const dispositivo_id = req.params.id;
+
+        const dispositivo = await Dispositivo.findByPk(dispositivo_id, {
+            include: [{
+                model: Ubicacion,
+                as: "ubicacion",
+                attributes: ["ubicacion_nombre", "ubicacion_tipo"]
+            }, {
+                model: Medicion,
+                as: "medicion",
+                attributes: {
+                    exclude: ["medicion_id", "createdAt", "updatedAt"]
+                }
+            }],
+        });
+
+        if (!dispositivo) {
+            throw new ErrorConCodigo("Dispositivo no encontrado", 404);
+        }
+
+        return res.json(dispositivo);
+    } catch (error) {
+        if (error.status) {
+            res.statusMessage = error.message;
+            return res.status(error.status).send(error.message);
+        }
+        console.log(error)
+        return res.status(500).end();
+    }
+}
+
 // Función para obtener las lecturas de un dispositivo específico
 // dentro de un rango de fechas
 const lecturasEnTabla = async (req, res) => {
@@ -218,5 +251,6 @@ const lecturasEnTabla = async (req, res) => {
 export {
     obtenerDatos,
     obtenerDatosDispositivo,
+    infoDispositivo,
     lecturasEnTabla
 }
