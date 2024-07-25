@@ -46,12 +46,10 @@ const obtenerDatos = async (req, res) => {
                 raw: true
             });
             dispositivo.dataValues.lecturasRecientes = lecturasRecientes;
-            console.log(dispositivo.lecturasRecientes)
         }
 
         // Como respuesta se envía un arreglo con los dispositivos y
         // sus lecturas en formato JSON
-        console.log(dispositivos);
         return res.json(dispositivos);
     } catch (error) {
         if (error.status) {
