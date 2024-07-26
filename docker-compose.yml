@@ -27,7 +27,9 @@ services:
       - DB_PASS=${POSTGRES_PASS}
       - DB_USER=${POSTGRES_USER}
       - DB_PORT=${POSTGRES_PORT}
-      - PORT=3000
+      - PORT=${APP_PORT}
+      - GATEWAY_URL=${GATEWAY_URL}
+      - CLIENT_URL=${CLIENT_URL}
     networks:
       - app-network
       - webservices
