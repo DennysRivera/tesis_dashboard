@@ -191,6 +191,13 @@ onMounted(async () => {
   position: absolute;
   top: 20%;
   left: 30%;
+  z-index: 3;
+}
+
+@media (max-width: 500px) {
+  .alerta {
+    left: 15%;
+  }
 }
 
 @media (width < 600px) {

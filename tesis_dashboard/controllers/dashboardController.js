@@ -41,7 +41,9 @@ const obtenerDatos = async (req, res) => {
                 attributes: {
                     exclude: ["updatedAt"]
                 },
-                order: ["createdAt"],
+                order: [
+                    ["createdAt", "DESC"]
+                ],
                 limit: 10,
                 raw: true
             });

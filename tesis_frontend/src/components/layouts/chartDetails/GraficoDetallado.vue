@@ -142,4 +142,10 @@ onBeforeUnmount(() => {
   top: 20%;
   left: 30%;
 }
+
+@media (max-width: 500px) {
+  .alerta {
+    left: 15%;
+  }
+}
 </style>
