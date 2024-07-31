@@ -18,5 +18,5 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  base: '/lora/'
+  base: process.env.VITE_BASE
 })
