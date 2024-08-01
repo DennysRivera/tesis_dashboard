@@ -57,7 +57,7 @@ const corsOptions = {
     },
     methods: "GET,PUT"
 }
-app.use(cors(corsOptions));
+app.use(cors());
 
 // Se inicia la conexión a la BD
 // y se imprime un error si falla
@@ -68,6 +68,13 @@ try {
 } catch (error) {
     console.log("Error al conectar a la base de datos:\n", error);
 }
+
+const staticContentPath = path.join(__dirname, "/app/dist/");
+app.use(express.static(staticContentPath));
+
+app.use("*", (req, res) => {
+    res.sendFile(staticContentPath + "index.html");
+});
 
 // Rutas que estarán disponibles en la aplicación
 // En este caso comprobará cualquier ruta que empiece con ""
