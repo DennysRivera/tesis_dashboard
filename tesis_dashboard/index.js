@@ -69,12 +69,8 @@ try {
     console.log("Error al conectar a la base de datos:\n", error);
 }
 
-const staticContentPath = path.join(__dirname, "/app/dist/");
+const staticContentPath = path.join(__dirname, "/front");
 app.use(express.static(staticContentPath));
-
-app.use("*", (req, res) => {
-    res.sendFile(staticContentPath + "index.html");
-});
 
 // Rutas que estarán disponibles en la aplicación
 // En este caso comprobará cualquier ruta que empiece con ""
