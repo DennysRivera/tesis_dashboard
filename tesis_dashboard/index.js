@@ -55,9 +55,18 @@ const corsOptions = {
             callback(new Error('Fuera de política CORS'));
         }
     },
-    methods: "GET,PUT"
+    methods: "GET,POST"
 }
-app.use(cors());
+app.use((req, res, next) => {
+    cors(corsOptions) (req, res, (err) => {
+        if(err){
+            res.status(403).send("Acceso no permitido");
+        }
+        else{
+            next();
+        }
+    })
+});
 
 // Se inicia la conexión a la BD
 // y se imprime un error si falla
