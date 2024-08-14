@@ -19,16 +19,21 @@ services:
     networks:
       - app-network
      
-  backend:
+  heraldobackend:
     build:
-      context: ./tesis_dashboard
+      context: .
       dockerfile: Dockerfile
-    container_name: backend
+      args:
+        - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+        - VITE_BASE=${VITE_BASE}
+    container_name: heraldobackend
     restart: always
     depends_on:
       postgres:
         condition: service_healthy
         restart: true
+    env_file:
+      .env
     environment:
       - DB_HOST=${POSTGRES_HOST}
       - DB_NAME=${POSTGRES_DATABASE}
@@ -38,19 +43,6 @@ services:
       - PORT=${NODE_PORT}
       - GATEWAY_URL=${GATEWAY_URL}
       - CLIENT_URL=${CLIENT_URL}
-    networks:
-      - app-network
-      - webservices
-      
-  frontend:
-    build:
-      context: ./tesis_frontend
-      dockerfile: Dockerfile
-      args:
-        - VITE_BACKEND_URL=${VITE_BACKEND_URL}
-        - VITE_BASE=${VITE_BASE}
-    container_name: vue-app
-    restart: always
     networks:
       - app-network
       - webservices
