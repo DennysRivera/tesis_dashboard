@@ -1,7 +1,10 @@
 import axios from "axios";
 
 const axiosCliente = axios.create({
-    baseURL: import.meta.env.VITE_BACKEND_URL
+    baseURL: import.meta.env.VITE_BACKEND_URL,
+    headers: {
+        "origin": window.location.origin
+    }
 });
 
 export {
