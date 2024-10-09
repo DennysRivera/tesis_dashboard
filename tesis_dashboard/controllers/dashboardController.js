@@ -47,7 +47,7 @@ const obtenerDatos = async (req, res) => {
                 limit: 10,
                 raw: true
             });
-            dispositivo.dataValues.lecturasRecientes = lecturasRecientes;
+            dispositivo.dataValues.lecturasRecientes = lecturasRecientes.reverse();
         }
 
         // Como respuesta se envía un arreglo con los dispositivos y
